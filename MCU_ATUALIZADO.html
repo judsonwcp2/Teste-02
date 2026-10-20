@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Movimento Circular Uniforme</title>
+<!-- v6: + modos ângulos/arcos, grau×radiano, figuras passo a passo, aba Aceleração centrípeta | v5: + aba Exemplos (satélite, relógio), teoria com figuras, conversor, Nível 3 estilo livro | v4: 4 abas, 2 esferas, transmissão (com modo Bicicleta), exercícios, tempo limite, tema claro/escuro -->
+<style>
+:root{
+ --bg1:#d8edfb;--bg2:#ffffff;--card:#ffffff;--ink:#14263d;--mut:#4a6178;--line:#c9deee;
+ --pri:#1b5e96;--onpri:#ffffff;--acc:#c4571c;--onacc:#ffffff;--cv:#f5fafe;--soft:#eef6fc;
+ --ok:#1f8a58;--bad:#c0392b;--c1:#d9480f;--c2:#0b6bcb;--shadow:0 8px 24px rgba(27,94,150,.13);
+ --font:"Myriad Pro","Myriad Pro Regular","PT Sans","Segoe UI",system-ui,sans-serif}
+:root[data-theme="dark"]{
+ --bg1:#0a1a31;--bg2:#16345f;--card:#152a4a;--ink:#eaf2fb;--mut:#a9bdd4;--line:#2d4a74;
+ --pri:#6db6ff;--onpri:#08203a;--acc:#ffa066;--onacc:#2a1204;--cv:#0e2140;--soft:#1b3359;
+ --ok:#52d19a;--bad:#ff8b7d;--c1:#ff8a5b;--c2:#4cc3ff;--shadow:0 8px 24px rgba(0,0,0,.4)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 100%) fixed;color:var(--ink);font-family:var(--font);padding:18px 14px 40px}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:1240px;margin:0 auto;flex-wrap:wrap}
+.hdr .t{flex:1;text-align:center;min-width:240px}
+h1{margin:0;font-size:30px;font-weight:700;color:var(--pri)}
+.sub{color:var(--mut);font-size:14px;margin-top:4px}
+.tg{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 16px;border-radius:30px;font:600 14px var(--font);cursor:pointer;box-shadow:var(--shadow)}
+.spacer{width:150px}
+.tabs{display:flex;justify-content:center;gap:8px;margin:16px 0 18px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:var(--card);color:var(--mut);padding:10px 20px;border-radius:30px;font:600 14px var(--font);cursor:pointer}
+.tab.on{background:var(--pri);color:var(--onpri);border-color:var(--pri)}
+.wrap{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;max-width:1240px;margin:0 auto 20px}
+.hide{display:none!important}
+.stage{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:var(--shadow);flex:2 1 520px;max-width:760px}
+canvas{width:100%;height:auto;display:block;border-radius:12px;background:var(--cv)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;flex:1 1 320px;max-width:430px;box-shadow:var(--shadow)}
+.full{max-width:1240px;margin:0 auto 20px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);width:100%}
+.panel h3,.full h3{margin:0 0 10px;font-size:15px;color:var(--pri);letter-spacing:.5px;text-transform:uppercase}
+.sph{border:1px solid var(--line);border-left:6px solid var(--sc);border-radius:12px;padding:10px 12px 12px;margin-bottom:12px;background:var(--soft)}
+.sph.off{opacity:.55}
+.sph-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sph-h b{color:var(--sc);font-size:16px}
+.clr{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;color:var(--mut)}
+input[type=color]{width:38px;height:28px;border:1px solid var(--line);border-radius:8px;padding:1px;background:var(--card);cursor:pointer}
+.sl{display:flex;justify-content:space-between;font-weight:600;font-size:13px;margin:9px 0 2px}
+input[type=range]{width:100%;accent-color:var(--sc,var(--acc))}
+.ck{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:600;margin:7px 0}
+.ck input{accent-color:var(--acc);width:17px;height:17px}
+.btn{width:100%;border:0;border-radius:12px;padding:12px;font:700 14px var(--font);cursor:pointer;margin-top:10px;background:var(--pri);color:var(--onpri)}
+.btn.acc{background:var(--acc);color:var(--onacc)}
+.btn.ghost{background:transparent;color:var(--mut);border:1px solid var(--line)}
+.btn.ghost.on{background:var(--pri);color:var(--onpri);border-color:var(--pri)}
+.btn:disabled{opacity:.4;cursor:default}
+.row{display:flex;gap:8px}
+.info{background:var(--soft);border-radius:12px;padding:12px;font-size:14px;line-height:1.55;margin-top:12px;border-left:4px solid var(--acc)}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:7px 6px;text-align:center;border-bottom:1px solid var(--line)}
+th{color:var(--mut);font-weight:600}
+td:first-child,th:first-child{text-align:left}
+.tbl-s td,.tbl-s th{font-size:13px;padding:6px 4px}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px}
+.modes .btn{margin-top:0;background:var(--soft);color:var(--ink);border:1px solid var(--line);font-size:13px;padding:10px 6px}
+.modes .btn.on{background:var(--pri);color:var(--onpri);border-color:var(--pri)}
+.lvls{display:flex;gap:10px;flex-wrap:wrap}
+.lvls .btn{flex:1 1 200px;margin-top:0;background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+.lvls .btn.on{background:var(--pri);color:var(--onpri);border-color:var(--pri)}
+.q{font-size:19px;line-height:1.5;margin:16px 0 8px}
+.tag{display:inline-block;background:var(--acc);color:var(--onacc);font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;margin-right:6px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:14px 0}
+.opt{border:2px solid var(--line);background:var(--soft);color:var(--ink);border-radius:12px;padding:14px;font:600 17px var(--font);cursor:pointer;text-align:left}
+.opt:hover:not(:disabled){border-color:var(--pri)}
+.opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,var(--card))}
+.opt.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 16%,var(--card))}
+.sol{display:none;background:var(--soft);border-left:4px solid var(--ok);border-radius:10px;padding:12px;line-height:1.6;margin-top:6px}
+.score{color:var(--mut);font-weight:600;margin-top:12px;font-size:14px}
+.hint{color:var(--mut);font-size:13px;margin:6px 2px 0}
+.ftb{border:1px dashed var(--pri);background:var(--soft);color:var(--pri);border-radius:10px;padding:3px 10px;font:700 13px var(--font);cursor:pointer;text-align:left}
+.ftb:hover{background:var(--pri);color:var(--onpri)}
+.stage{position:relative}
+.fs{position:absolute;top:18px;right:18px;z-index:5;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:20px;font:700 13px var(--font);cursor:pointer;box-shadow:var(--shadow);opacity:.92}
+.fs:hover{opacity:1;border-color:var(--pri)}
+/* ----- TELA CHEIA: canvas grande à esquerda, controles na lateral, mais abaixo ----- */
+.wrap.isfs{width:100vw;height:100vh;max-width:none;margin:0;padding:14px;gap:14px;flex-wrap:nowrap;align-items:stretch;justify-content:stretch;overflow:hidden;
+ background:linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 100%)}
+.wrap.isfs .stage{flex:1 1 auto;max-width:none;min-width:0;display:flex;align-items:center;justify-content:center;padding:8px}
+.wrap.isfs canvas{width:auto;height:auto;max-width:100%;max-height:calc(100vh - 60px)}
+.wrap.isfs .panel{flex:0 0 320px;max-width:320px;max-height:100%;overflow-y:auto;padding:14px}
+.wrap.isfs .panel>:first-child{margin-top:auto}
+/* ===== v5: teoria, figuras, exemplos, exercícios estilo livro ===== */
+.sec-title{max-width:1240px;margin:22px auto 12px;font-size:20px;font-weight:700;color:var(--pri);padding-left:14px;border-left:6px solid var(--acc)}
+.sec-title small{color:var(--mut);font-weight:600;font-size:14px;margin-left:8px}
+.theory{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px;max-width:1240px;margin:0 auto 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.card.wide{grid-column:1/-1}
+.card h3{margin:0 0 10px;font-size:16px;color:var(--pri)}
+.card p,.card li{font-size:15px;line-height:1.6;margin:8px 0}
+.card ul,.card ol{padding-left:20px;margin:6px 0}
+.num{display:inline-block;background:var(--acc);color:var(--onacc);border-radius:6px;padding:1px 9px;font-weight:700;margin-right:8px}
+.fbox,.box{display:inline-block;background:color-mix(in srgb,var(--pri) 12%,var(--card));border:1.5px solid color-mix(in srgb,var(--pri) 50%,var(--card));border-radius:10px;padding:4px 12px;margin:4px 6px 4px 0;font-weight:700}
+.fbox{font:italic 600 18px Georgia,"Times New Roman",serif}
+.figrow{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+.figrow figure{margin:0;flex:1 1 280px;max-width:420px;text-align:center}
+.figrow figcaption{font-size:13px;color:var(--mut);font-weight:600;margin-top:4px}
+.fig{width:100%;height:auto;display:block;background:var(--cv);border-radius:12px;border:1px solid var(--line)}
+.fig text{fill:var(--ink);font:600 13px var(--font)}
+.fig text.i{font-style:italic}.fig .sbt{font-size:10px}
+.fig .tc1{fill:var(--c1)}.fig .tc2{fill:var(--c2)}.fig .tbad{fill:var(--bad)}.fig .tpri{fill:var(--pri)}.fig .tmut{fill:var(--mut);font-size:12px}
+.fig .ink{stroke:var(--ink);fill:none;stroke-width:1.7}
+.fig .mutc{stroke:var(--mut);fill:none;stroke-width:1.3;stroke-dasharray:5 5}
+.fig .redarc{stroke:var(--bad);fill:none;stroke-width:4;stroke-linecap:round}
+.fig .priarc{stroke:var(--pri);fill:none;stroke-width:2}
+.fig .redl{stroke:var(--bad);fill:none;stroke-width:3}
+.fig .c1l{stroke:var(--c1);fill:none;stroke-width:2.4}
+.fig .c2l{stroke:var(--c2);fill:none;stroke-width:2.4}
+.fig .d-ink{fill:var(--ink)}.fig .d-bad{fill:var(--bad)}.fig .d-c1{fill:var(--c1)}.fig .d-c2{fill:var(--c2)}
+.fig .g1{fill:color-mix(in srgb,var(--c1) 20%,var(--card));stroke:var(--c1);stroke-width:2}
+.fig .g2{fill:color-mix(in srgb,var(--c2) 20%,var(--card));stroke:var(--c2);stroke-width:2}
+.fig .g3{fill:color-mix(in srgb,var(--acc) 22%,var(--card));stroke:var(--acc);stroke-width:2}
+.fig .tt1{fill:none;stroke:var(--c1);stroke-width:7;stroke-dasharray:6 5;opacity:.85}
+.fig .tt2{fill:none;stroke:var(--c2);stroke-width:7;stroke-dasharray:6 5;opacity:.85}
+.fig .tt3{fill:none;stroke:var(--acc);stroke-width:7;stroke-dasharray:6 5;opacity:.85}
+.fig .beltl{fill:none;stroke:var(--mut);stroke-width:4}
+.fig .tire{fill:none;stroke:var(--ink);stroke-width:7;opacity:.8}
+.fig .spk{stroke:var(--mut);stroke-width:1;fill:none}
+.exfig{max-width:440px;margin:10px 0}
+.pq{font-size:17px;margin:14px 0 4px;line-height:1.5}
+.numin{padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:700 15px var(--font);min-width:110px}
+.cvt td,.cvt th{font-size:14px}
+.best{background:color-mix(in srgb,var(--ok) 20%,var(--card));font-weight:700}
+.slow{background:color-mix(in srgb,var(--bad) 14%,var(--card));font-weight:700}
+.lvls .btn{flex:1 1 180px}
+.fig .gin1{fill:none;stroke:var(--c1);stroke-width:1.2;opacity:.55}
+.fig .gin2{fill:none;stroke:var(--c2);stroke-width:1.2;opacity:.55}
+.fig .gin3{fill:none;stroke:var(--acc);stroke-width:1.2;opacity:.55}
+.fig .ghole{fill:var(--card);stroke:var(--mut);stroke-width:1;opacity:.9}
+.fig .ghub1{fill:var(--card);stroke:var(--c1);stroke-width:2}.fig .ghub2{fill:var(--card);stroke:var(--c2);stroke-width:2}.fig .ghub3{fill:var(--card);stroke:var(--acc);stroke-width:2}
+.fig .slice{fill:color-mix(in srgb,var(--bad) 35%,var(--card));stroke:var(--bad);stroke-width:1.5}
+.fig .chain{fill:none;stroke:var(--ink);stroke-width:4;stroke-dasharray:5 3;opacity:.8}
+.fig .rim{fill:none;stroke:var(--mut);stroke-width:2}
+.fig .crank{stroke:var(--ink);stroke-width:5;stroke-linecap:round}
+.fig .pedal{fill:var(--acc);stroke:var(--ink);stroke-width:1}
+.fig text{paint-order:stroke;stroke:var(--cv);stroke-width:3px;stroke-linejoin:round}
+@media(max-width:600px){h1{font-size:24px}.spacer{display:none}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+ <marker id="mI" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8z" style="fill:var(--ink)"/></marker>
+ <marker id="m1" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8z" style="fill:var(--c1)"/></marker>
+ <marker id="m2" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8z" style="fill:var(--c2)"/></marker>
+ <marker id="mR" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L8,4 L0,8z" style="fill:var(--bad)"/></marker>
+ <marker id="mP" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8z" style="fill:var(--pri)"/></marker>
+</defs></svg>
+
+<div class="hdr">
+ <div class="spacer"></div>
+ <div class="t"><h1>Movimento Circular Uniforme</h1><div class="sub">Ângulo, arco, velocidade, aceleração e transmissão de movimento — 9º Ano</div></div>
+ <button class="tg" id="tgl" onclick="toggleTheme()">🌙 Tema escuro</button>
+</div>
+<div class="tabs">
+ <button class="tab on" id="t1" onclick="setTab(1)">Aprendizagem</button>
+ <button class="tab" id="t2" onclick="setTab(2)">Simulador</button>
+ <button class="tab" id="t6" onclick="setTab(6)">Aceleração centrípeta</button>
+ <button class="tab" id="t3" onclick="setTab(3)">Transmissão de movimento</button>
+ <button class="tab" id="t5" onclick="setTab(5)">Exemplos do cotidiano</button>
+ <button class="tab" id="t4" onclick="setTab(4)">Exercícios</button>
+</div>
+
+<!-- 1 APRENDIZAGEM -->
+<div id="v1"><div class="wrap">
+ <div class="stage"><button class="fs" onclick="goFS(this)">⛶ Tela cheia</button><canvas id="c1"></canvas></div>
+ <div class="panel">
+  <h3>Construindo ângulo e arco</h3>
+  <div class="modes" style="margin-bottom:8px"><button class="btn on" id="lmAng" onclick="setLM('ang')">Construindo ângulos</button><button class="btn" id="lmArc" onclick="setLM('arc')">Construindo arcos</button></div>
+  <button class="btn" id="bNext" onclick="nextStep()">Aprendizagem ▶</button>
+  <div class="row"><button class="btn ghost" onclick="prevStep()">◀ Voltar</button><button class="btn ghost" onclick="resetL()">Reiniciar</button></div>
+  <div class="info" id="lInfo"></div>
+  <table class="tbl-s" id="tbl" style="margin-top:10px"><thead><tr><th></th><th>θ (graus)</th><th>θ (rad)</th><th>s (m)</th></tr></thead><tbody></tbody></table>
+  <div class="info mono hide" id="ratio"></div>
+ </div>
+</div>
+
+<div class="sec-title">📘 Para entender melhor <small>conceitos que aparecem nos exercícios</small></div>
+<div class="theory">
+ <div class="card"><h3><span class="num">1</span>Radiano e ângulo</h3>
+  <div class="figrow"><figure><div id="fgGrau"></div><figcaption>Grau: 1/360 da circunferência</figcaption></figure><figure><div id="fgRad"></div><figcaption>Radiano: arco igual ao raio</figcaption></figure></div>
+  <p>Um <b>radiano</b> (1 rad) é o ângulo central cujo arco tem o mesmo comprimento do raio (<i>s</i> = <i>R</i>). Como a circunferência mede 2π<i>R</i>, cabem <b>2π radianos</b> em uma volta completa: 2π rad = 360° e 1 rad ≈ 57,3°.</p>
+  <span class="fbox">s = φ · R</span><span class="fbox">π rad = 180°</span>
+  <p><b>Comparando:</b> 1° é uma das 360 partes da volta; 1 rad é o ângulo cujo arco vale o raio. Assim, 1° = π/180 rad ≈ 0,0175 rad e 1 rad ≈ 57,3°.</p>
+  <table class="tbl-s" style="margin-top:8px"><thead><tr><th>Graus</th><th>30°</th><th>45°</th><th>60°</th><th>90°</th><th>180°</th><th>270°</th><th>360°</th></tr></thead>
+   <tbody><tr><td><b>Radianos</b></td><td>π/6</td><td>π/4</td><td>π/3</td><td>π/2</td><td>π</td><td>3π/2</td><td>2π</td></tr></tbody></table>
+ </div>
+ <div class="card"><h3><span class="num">2</span>Velocidade angular</h3>
+  <div id="fgGrand"></div>
+  <div class="row"><button class="btn" id="grNext" onclick="grStep(1)">Mostrar ▶</button><button class="btn ghost" id="grPrev" onclick="grStep(-1)">◀ Voltar</button><button class="btn ghost" onclick="grReset()">Reiniciar</button></div>
+  <div class="info" id="grInfo"></div>
+  <p>Entre os instantes t₁ e t₂ o ponto varre o ângulo Δφ = φ₂ − φ₁. A <b>velocidade angular</b> é a rapidez com que o ângulo varia; no MCU ela é constante (ω = ω<sub>m</sub>) e se mede em rad/s.</p>
+  <span class="fbox">ω = Δφ/Δt</span><span class="fbox">ω = 2π/T</span><span class="fbox">ω = 2π·f</span>
+  <p>Ligando o ângulo ao arco: <span class="fbox">v = ω · R</span><span class="fbox">v = 2πR/T = 2πRf</span></p>
+  <p>Equação horária angular do MCU: <span class="fbox">φ = φ₀ + ω·t</span></p>
+ </div>
+ <div class="card"><h3><span class="num">3</span>O vetor velocidade no MCU</h3>
+  <div id="fgVel"></div>
+  <div class="row"><button class="btn" id="velNext" onclick="velStep(1)">Próximo ▶</button><button class="btn ghost" id="velPrev" onclick="velStep(-1)">◀ Voltar</button><button class="btn ghost" onclick="velReset()">Reiniciar</button></div>
+  <div class="info" id="velInfo"></div>
+  <p>O <b>módulo</b> de v é constante, mas a <b>direção e o sentido mudam</b> a cada ponto: v é sempre tangente à circunferência. Por isso v₁ ≠ v₂ ≠ v₃ ≠ v₄, embora tenham o mesmo valor.</p>
+  <p>Como o vetor velocidade muda, existe aceleração: a <b>aceleração centrípeta</b>, que aponta para o centro.</p>
+  <span class="fbox">a<sub>c</sub> = v²/R = ω²·R</span>
+ </div>
+ <div class="card wide"><h3><span class="num">4</span>Transmissão de movimento circular</h3>
+  <div class="figrow">
+   <figure><div id="fgCont"></div><figcaption>Rodas/engrenagens em contato: sentidos opostos</figcaption></figure>
+   <figure><div id="fgBelt"></div><figcaption>Correia ou corrente: mesmo sentido</figcaption></figure>
+   <figure><div id="fgCoax"></div><figcaption>Mesmo eixo: mesma ω, v diferentes</figcaption></figure>
+  </div>
+  <p>Em contato ou ligadas por correia, os pontos da borda têm a <b>mesma velocidade linear</b>. Em contato há inversão do sentido; por correia, o sentido se mantém.</p>
+  <span class="fbox">v<sub>A</sub> = v<sub>B</sub></span><span class="fbox">ω<sub>A</sub>·R<sub>A</sub> = ω<sub>B</sub>·R<sub>B</sub></span><span class="fbox">f<sub>A</sub>·R<sub>A</sub> = f<sub>B</sub>·R<sub>B</sub></span>
+  <p>Ou seja, ω e f são <b>inversamente proporcionais</b> aos raios: a roda menor gira mais rápido. No <b>mesmo eixo</b>, ω e f são iguais e a v cresce com o raio (v = ω·R).</p>
+  <button class="btn ghost" onclick="setTab(3)">Abrir a transmissão no simulador ▶</button>
+ </div>
+ <div class="card"><h3><span class="num">5</span>As marchas da bicicleta</h3>
+  <div id="fgBike"></div>
+  <p>Os pedais giram a <b>coroa</b>; a corrente a liga à <b>catraca</b>, que gira junto com a roda traseira (mesmo eixo). Cada combinação coroa × catraca é uma marcha.</p>
+  <span class="fbox">ω<sub>B</sub> = ω<sub>A</sub>·R<sub>A</sub> / R<sub>B</sub></span>
+  <p><b>Maior velocidade:</b> catraca de menor raio com coroa de maior raio. <b>Marcha leve (subida):</b> catraca de maior raio com coroa de menor raio.</p>
+  <div id="tblGear"></div>
+  <button class="btn ghost" onclick="setTab(3);document.querySelector('#modes [data-m=bike]').click()">Abrir a bicicleta no simulador ▶</button>
+ </div>
+ <div class="card"><h3><span class="num">6</span>Conversor: rpm, Hz, rad/s e período</h3>
+  <p>Nos exercícios as frequências costumam vir em <b>rpm</b>. Digite um valor e veja as outras unidades.</p>
+  <div class="row" style="align-items:center">
+   <input type="text" inputmode="decimal" id="cvIn" value="2400" class="numin">
+   <select id="cvU" class="numin"><option value="rpm">rpm</option><option value="Hz">Hz</option><option value="rad">rad/s</option><option value="T">período T (s)</option></select>
+  </div>
+  <div id="cvOut" style="margin-top:10px"></div>
+ </div>
+ </div>
+</div>
+
+<!-- 2 SIMULADOR -->
+<div id="v2" class="hide">
+ <div class="wrap">
+  <div class="stage"><button class="fs" onclick="goFS(this)">⛶ Tela cheia</button><canvas id="c2"></canvas></div>
+  <div class="panel">
+   <h3>Controles</h3>
+   <div id="cards"></div>
+   <div class="ck"><input type="checkbox" id="ckV" checked>Velocidade linear (v)</div>
+   <div class="ck"><input type="checkbox" id="ckA" checked>Aceleração centrípeta (ac)</div>
+   <div class="ck"><input type="checkbox" id="ckW" checked>Velocidade angular (ω)</div>
+   <div class="ck"><input type="checkbox" id="ckS" checked>Mostrar arco percorrido</div>
+   <div class="ck"><input type="checkbox" id="ckPhi">Mostrar ângulo φ (a partir do eixo x)</div>
+   <div class="ck" style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">
+    <input type="checkbox" id="ckTL" onchange="toggleTL()"><b>Tempo limite / Parar simulação</b>
+   </div>
+   <div id="tlBox" class="hide" style="background:var(--soft);padding:10px;border-radius:12px;margin:6px 0;border:1px solid var(--line)">
+    <div style="font-size:13px;font-weight:600;margin-bottom:6px;color:var(--pri)">Tempo para parada automática:</div>
+    <div class="row" style="margin-bottom:8px">
+     <button class="btn ghost" style="padding:6px;margin:0;font-size:13px" onclick="setTL(10)">10s</button>
+     <button class="btn ghost" style="padding:6px;margin:0;font-size:13px" onclick="setTL(15)">15s</button>
+     <button class="btn ghost" style="padding:6px;margin:0;font-size:13px" onclick="setTL(20)">20s</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+     <span style="font-size:13px;font-weight:600">Personalizado:</span>
+     <input type="number" id="tlInput" value="10" min="1" max="300" style="width:70px;padding:6px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:600">
+     <span style="font-size:13px">s</span>
+     <button class="btn" style="padding:6px 12px;margin:0;width:auto;font-size:13px" onclick="applyTL()">OK / Iniciar</button>
+    </div>
+   </div>
+   <div class="row" style="margin-top:12px"><button class="btn" onclick="rodando=!rodando">Pausar / Continuar</button><button class="btn ghost" onclick="resetSim()">Reiniciar</button></div>
+   <div class="hint">Cada vetor e cada arco usam a cor da sua esfera. O comprimento da seta de v e o tamanho do círculo de ω são proporcionais aos valores.</div>
+  </div>
+ </div>
+ <div class="full"><h3>Dados ao vivo</h3><div id="dash"></div><div class="info" id="cmp"></div></div>
+</div>
+
+<!-- 6 ACELERAÇÃO CENTRÍPETA -->
+<div id="v6" class="hide">
+ <div class="wrap">
+  <div class="stage"><button class="fs" onclick="goFS(this)">⛶ Tela cheia</button><canvas id="c7"></canvas></div>
+  <div class="panel">
+   <h3>De onde vem a aceleração centrípeta?</h3>
+   <button class="btn" id="acNext" onclick="acStep(1)">Próximo passo ▶</button>
+   <div class="row"><button class="btn ghost" id="acPrev" onclick="acStep(-1)">◀ Voltar</button><button class="btn ghost" onclick="acStep(-9)">Reiniciar</button></div>
+   <div class="info" id="acInfo"></div>
+   <label class="sl"><span>Raio R</span><b id="vAcR">8 m</b></label>
+   <input type="range" id="acR" min="2" max="10" step="1" value="8" style="--sc:var(--c1)">
+   <label class="sl"><span>Velocidade v</span><b id="vAcV">5 m/s</b></label>
+   <input type="range" id="acV" min="2" max="10" step="1" value="5" style="--sc:var(--c2)">
+   <label class="sl"><span>Ângulo Δθ entre os pontos</span><b id="vAcT">50°</b></label>
+   <input type="range" id="acT" min="5" max="90" step="5" value="50">
+   <div class="hint">Quanto menor o Δθ, mais o arco Δs se parece com a corda e mais exata fica a semelhança dos triângulos.</div>
+  </div>
+ </div>
+ <div class="full"><h3>Dados da construção</h3><div id="acTbl"></div></div>
+</div>
+
+<!-- 3 TRANSMISSÃO -->
+<div id="v3" class="hide">
+ <div class="wrap">
+  <div class="stage"><button class="fs" onclick="goFS(this)">⛶ Tela cheia</button><canvas id="c3"></canvas></div>
+  <div class="panel">
+   <h3>Tipo de transmissão</h3>
+   <div class="modes" id="modes">
+    <button class="btn on" data-m="gear">⚙ Engrenagens</button>
+    <button class="btn" data-m="fric">◎ Rodas contato</button>
+    <button class="btn" data-m="belt">⟳ Correia</button>
+    <button class="btn" data-m="coax">⊙ Mesmo eixo</button>
+    <button class="btn" data-m="bike">🚲 Bicicleta</button>
+   </div>
+
+   <!-- Controles de Rodas Padrão -->
+   <div id="stdWheelCtrls">
+    <div class="sl"><button type="button" class="ftb" id="mfA" onclick="toggleA()">Frequência da roda A (f<sub>A</sub>) ⇄</button><b id="vfA">0,25 Hz</b></div>
+    <input type="range" id="fA" min="0.05" max="1" step="0.05" value="0.25" style="--sc:var(--c1)">
+    <label class="sl"><span>Raio da roda A</span><b id="vRA">6 cm</b></label>
+    <input type="range" id="RA" min="3" max="12" step="1" value="6" style="--sc:var(--c1)">
+    <label class="sl"><span>Raio da roda B</span><b id="vRB">10 cm</b></label>
+    <input type="range" id="RB" min="3" max="12" step="1" value="10" style="--sc:var(--c2)">
+   </div>
+
+   <!-- Controles Específicos da Bicicleta -->
+   <div id="bikeCtrls" class="hide" style="margin-top:10px;background:var(--soft);padding:12px;border-radius:12px;border:1px solid var(--line)">
+    <div style="font-weight:700;color:var(--pri);margin-bottom:8px">Marchas da Bicicleta</div>
+    <label class="sl"><span>Coroa (Dianteira / Pedal)</span><b id="vCoroa">Coroa 1 (30 dentes)</b></label>
+    <div class="row" style="margin-bottom:8px">
+     <button class="btn ghost on" id="btnCoroa1" onclick="setCoroa(1)" style="flex:1;padding:8px;font-size:12px">Coroa 1 (30d)</button>
+     <button class="btn ghost" id="btnCoroa2" onclick="setCoroa(2)" style="flex:1;padding:8px;font-size:12px">Coroa 2 (42d)</button>
+    </div>
+    <label class="sl"><span>Catraca (Traseira / Roda)</span><b id="vCatraca">Catraca 2 (18 dentes)</b></label>
+    <div class="row" style="margin-bottom:10px">
+     <button class="btn ghost" id="btnCat1" onclick="setCatraca(1)" style="flex:1;padding:6px;font-size:11px">Cat. 1 (12d · Rápida)</button>
+     <button class="btn ghost on" id="btnCat2" onclick="setCatraca(2)" style="flex:1;padding:6px;font-size:11px">Cat. 2 (18d · Média)</button>
+     <button class="btn ghost" id="btnCat3" onclick="setCatraca(3)" style="flex:1;padding:6px;font-size:11px">Cat. 3 (24d · Subida)</button>
+    </div>
+    <div class="sl"><button type="button" class="ftb" id="mfP" onclick="toggleP()">Frequência dos pedais (f<sub>pedal</sub>) ⇄</button><b id="vfPedal">1,00 Hz</b></div>
+    <input type="range" id="fPedal" min="0.05" max="2.0" step="0.05" value="1.0" style="--sc:var(--c1)">
+    <label class="sl"><span>Raio da roda traseira</span><b id="vRRoda">30 cm</b></label>
+    <input type="range" id="RRoda" min="20" max="40" step="2" value="30" style="--sc:var(--c2)">
+   </div>
+
+   <div class="ck" style="margin-top:12px"><input type="checkbox" id="ckTW" checked>Mostrar velocidade angular (ω)</div>
+   <div class="ck"><input type="checkbox" id="ckTV" checked>Mostrar velocidade linear (v)</div>
+   <div class="row"><button class="btn" onclick="rodando3=!rodando3">Pausar / Continuar</button><button class="btn ghost" onclick="resetTR()">Reiniciar</button></div>
+   <div class="hint">Os pontos de referência e raios indicam o movimento circular de cada componente.</div>
+   <div class="info" id="trRule"></div>
+  </div>
+ </div>
+ <div class="full"><h3>Dados das rodas / bicicleta</h3><div id="trTbl"></div></div>
+</div>
+
+<!-- 5 EXEMPLOS DO COTIDIANO -->
+<div id="v5" class="hide">
+ <div class="sec-title">🛰️ Satélite geoestacionário <small>fica parado em relação à Terra</small></div>
+ <div class="wrap">
+  <div class="stage"><button class="fs" onclick="goFS(this)">⛶ Tela cheia</button><canvas id="c5"></canvas></div>
+  <div class="panel">
+   <h3>Controles do satélite</h3>
+   <div class="sl"><span>Período do satélite T</span><b id="vSatT">24 h</b></div>
+   <input type="range" id="satT" min="2" max="48" step="0.5" value="24" style="--sc:var(--c2)">
+   <button class="btn ghost" onclick="setSatGeo()">Voltar ao geoestacionário (T = 24 h)</button>
+   <div class="sl"><span>Velocidade da animação</span><b id="vSatSpd">3 h por segundo</b></div>
+   <input type="range" id="satSpd" min="0.5" max="12" step="0.5" value="3">
+   <div class="ck"><input type="checkbox" id="ckSV" checked>Velocidade linear (v)</div>
+   <div class="ck"><input type="checkbox" id="ckSW" checked>Velocidade angular (ω)</div>
+   <div class="ck"><input type="checkbox" id="ckSO" checked>Mostrar órbita</div>
+   <div class="row"><button class="btn" onclick="SAT.run=!SAT.run">Pausar / Continuar</button><button class="btn ghost" onclick="SAT.t=0">Reiniciar</button></div>
+   <div class="info" id="satMsg"></div>
+  </div>
+ </div>
+ <div class="full"><h3>Dados do observador na Terra e do satélite</h3><div id="satTbl"></div></div>
+
+ <div class="sec-title">🕒 Relógio <small>três ponteiros, três velocidades angulares</small></div>
+ <div class="wrap">
+  <div class="stage"><button class="fs" onclick="goFS(this)">⛶ Tela cheia</button><canvas id="c6"></canvas></div>
+  <div class="panel">
+   <h3>Controles do relógio</h3>
+   <div class="sl"><span>Velocidade do tempo</span><b id="vCkSpd">× 1</b></div>
+   <div class="modes" id="ckSpd">
+    <button class="btn on" data-s="1">× 1</button><button class="btn" data-s="10">× 10</button><button class="btn" data-s="60">× 60</button><button class="btn" data-s="300">× 300</button>
+   </div>
+   <div class="sl"><span>Ponto P no ponteiro dos segundos</span><b id="vCkFrac">70 %</b></div>
+   <input type="range" id="ckFrac" min="20" max="100" step="5" value="70" style="--sc:var(--c1)">
+   <div class="row"><button class="btn" onclick="CK.run=!CK.run">Pausar / Continuar</button><button class="btn ghost" onclick="CK.t=0">Reiniciar 12:00:00</button></div>
+   <div class="info" id="ckMsg"></div>
+  </div>
+ </div>
+ <div class="full"><h3>Dados dos ponteiros</h3><div id="ckTbl"></div></div>
+</div>
+
+<!-- 4 EXERCÍCIOS -->
+<div id="v4" class="hide">
+ <div class="full">
+  <h3>Exercícios</h3>
+  <div class="lvls">
+   <button class="btn on" id="lv1" onclick="setLevel(1)">Nível 1 · Rápidas</button>
+   <button class="btn" id="lv2" onclick="setLevel(2)">Nível 2 · Contextualizadas</button>
+   <button class="btn" id="lv3" onclick="setLevel(3)">Nível 3 · Estilo livro (a, b, c)</button>
+  </div>
+  <div class="q" id="exQ"></div>
+  <div id="exO"></div>
+  <div class="sol" id="exS"></div>
+  <div class="row"><button class="btn acc" onclick="novaQ()">Nova questão ↻</button><button class="btn ghost" onclick="showSol()">Mostrar resolução</button></div>
+  <div class="score" id="exScore"></div>
+ </div>
+</div>
+
+<script>
+const TAU=Math.PI*2,D2R=Math.PI/180;
+const FONT='"Myriad Pro","Myriad Pro Regular","PT Sans","Segoe UI",system-ui,sans-serif';
+const $=id=>document.getElementById(id);
+const fmt=(n,d=2)=>n.toLocaleString('pt-BR',{maximumFractionDigits:d});
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+let TH={};
+function readTheme(){const cs=getComputedStyle(document.documentElement),g=n=>cs.getPropertyValue(n).trim();
+ TH={ink:g('--ink'),mut:g('--mut'),pri:g('--pri'),acc:g('--acc'),card:g('--card'),line:g('--line'),c1:g('--c1'),c2:g('--c2'),bad:g('--bad'),ok:g('--ok')}}
+function setupCanvas(id,w,h){const c=$(id);c.width=w*2;c.height=h*2;const g=c.getContext('2d');g.scale(2,2);return g}
+function rgba(hex,a){const n=parseInt(hex.slice(1),16);return `rgba(${n>>16},${n>>8&255},${n&255},${a})`}
+function shade(hex,p){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const t=p<0?0:255,q=Math.abs(p);
+ return `rgb(${Math.round((t-r)*q+r)},${Math.round((t-g)*q+g)},${Math.round((t-b)*q+b)})`}
+function label(g,txt,x,y,col,size=16,align='center'){g.font=`700 ${size}px ${FONT}`;g.textAlign=align;g.lineJoin='round';
+ g.lineWidth=5;g.strokeStyle=TH.card;g.strokeText(txt,x,y);g.fillStyle=col;g.fillText(txt,x,y)}
+function arrow(g,x0,y0,x1,y1,col,lw=4,dash=null){
+ const a=Math.atan2(y1-y0,x1-x0),h=11+lw*1.5,bx=x1-Math.cos(a)*h*.8,by=y1-Math.sin(a)*h*.8;
+ const draw=(c,w,extra)=>{g.strokeStyle=c;g.fillStyle=c;g.lineWidth=w;g.lineCap='round';g.setLineDash(dash&&!extra?dash:[]);
+  g.beginPath();g.moveTo(x0,y0);g.lineTo(bx,by);g.stroke();g.setLineDash([]);
+  g.beginPath();g.moveTo(x1+Math.cos(a)*extra,y1+Math.sin(a)*extra);
+  g.lineTo(x1-Math.cos(a)*h+Math.sin(a)*(h*.45+extra),y1-Math.sin(a)*h-Math.cos(a)*(h*.45+extra));
+  g.lineTo(x1-Math.cos(a)*h-Math.sin(a)*(h*.45+extra),y1-Math.sin(a)*h+Math.cos(a)*(h*.45+extra));g.closePath();g.fill()};
+ g.save();draw(TH.card,lw+4,2);draw(col,lw,0);g.restore()}
+function arcArrow(g,cx,cy,r,s,e,col,ccw=true,lw=3){
+ g.strokeStyle=col;g.lineWidth=lw;g.lineCap='round';g.beginPath();g.arc(cx,cy,r,-s*D2R,-e*D2R,ccw);g.stroke();
+ const er=e*D2R,px=cx+r*Math.cos(er),py=cy-r*Math.sin(er);
+ const dx=ccw?-Math.sin(er):Math.sin(er),dy=ccw?-Math.cos(er):Math.cos(er),nx=dy,ny=-dx;
+ g.fillStyle=col;g.beginPath();g.moveTo(px+dx*9,py+dy*9);g.lineTo(px+nx*6,py+ny*6);g.lineTo(px-nx*6,py-ny*6);g.closePath();g.fill()}
+
+/* ---------- TEMA E ABAS ---------- */
+let cur=1;
+function setTab(n){cur=n;for(let i=1;i<=6;i++){$('v'+i).classList.toggle('hide',i!=n);$('t'+i).classList.toggle('on',i==n)}}
+function toggleTheme(){setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark')}
+function setTheme(t){document.documentElement.dataset.theme=t;readTheme();
+ [0,1].forEach(i=>{if(!S[i].touched){S[i].color=TH['c'+(i+1)];$('col'+i).value=S[i].color;$('card'+i).style.setProperty('--sc',S[i].color)}});
+ $('tgl').textContent=t==='dark'?'☀ Tema claro':'🌙 Tema escuro'}
+
+/* ---------- 1 APRENDIZAGEM ---------- */
+const g1=setupCanvas('c1',600,600);
+const COLORS=['#e0783a','#2f8fe5','#2e9e6b','#a35bd1','#d4a017','#e0436e'];
+const R_REAL=10,PX=235,RAD=['0','π/3','2π/3','π','4π/3','5π/3','2π'];
+let step=0,curA=0;
+const tgt=()=>step<1?0:(step-1)*60;
+let lmode='ang';
+const SB=['₀','₁','₂','₃','₄','₅','₆'];
+const msgsAng=['Clique em <b>Aprendizagem</b> para começar: ainda não há nenhuma figura.',
+ 'Surge o <b>raio</b> na horizontal: é a posição inicial. Ângulo inicial <b>θ₀ = 0</b>.',
+ 'O raio girou <b>60°</b> (π/3 rad). Surgiu o 1º <b>ângulo central</b>, <b>Δθ₁</b>, colorido. O arco da borda fica discreto.',
+ 'Mais 60°: surge o <b>ângulo Δθ₂</b>. O ângulo total já é <b>120°</b>.',
+ 'Meia volta: <b>180°</b> (π rad), formada por três ângulos de 60°.',
+ 'Agora <b>240°</b>. Cada novo ângulo central tem uma cor.',
+ '<b>300°</b>: falta só mais um ângulo para fechar a volta.',
+ 'Volta completa! Seis ângulos de 60° somam <b>360°</b> (2π rad). Agora clique em <b>Construindo arcos</b> para ver o que acontece na extremidade.'];
+const msgsArc=['Clique em <b>Aprendizagem</b> para começar: ainda não há nenhuma figura.',
+ 'A esfera está na extremidade do raio: posição inicial, arco <b>s₀ = 0</b>.',
+ 'A esfera percorreu <b>60°</b> e surgiu o 1º arco, <b>Δs₁ = θ·R</b>. Só o arco, na borda, é destacado.',
+ 'Mais 60°: <b>Δs₂</b>. Ângulos iguais geram arcos iguais.',
+ 'Meia volta: o arco percorrido é metade da circunferência, <b>πR</b>.',
+ 'Agora o arco já tem 4 partes (<b>Δs₄</b>). Cada trecho tem uma cor.',
+ 'Faltam só <b>Δs₆</b> para fechar a volta.',
+ 'Volta completa: arco <b>s = 2πR</b>, o comprimento da circunferência. É na extremidade que existe a <b>velocidade linear</b>.'];
+function setLM(m){lmode=m;$('lmAng').classList.toggle('on',m==='ang');$('lmArc').classList.toggle('on',m==='arc');updL()}
+function nextStep(){if(step<7){step++;updL()}}
+function prevStep(){if(step>0){step--;updL()}}
+function resetL(){step=0;curA=0;updL()}
+function updL(){
+ $('lInfo').innerHTML=(lmode==='arc'?msgsArc:msgsAng)[step];$('bNext').disabled=step>=7;
+ const tb=document.querySelector('#tbl tbody');tb.innerHTML='';
+ for(let k=1;k<=step;k++){const a=(k-1)*60,s=a*Math.PI/180*R_REAL;
+  tb.innerHTML+=`<tr><td><span class="dot" style="background:${k>1?COLORS[k-2]:'#8a97a8'}"></span>${k==1?'θ₀':'θ'+(k-1)}</td><td>${a}°</td><td>${RAD[k-1]}</td><td>${fmt(s)}</td></tr>`}
+ $('ratio').classList.toggle('hide',step<3);
+ $('ratio').innerHTML=`s ÷ θ = R = ${R_REAL} m (constante)<br>s = θ · R &nbsp;(θ em radianos)`}
+function drawL(){
+ const g=g1,W=600,cx=300,cy=300,arc=lmode==='arc';g.clearRect(0,0,W,W);
+ const t=tgt();if(Math.abs(curA-t)<1)curA=t;else curA+=Math.sign(t-curA)*Math.max(1.5,Math.abs(t-curA)*0.06);
+ g.setLineDash([5,6]);g.strokeStyle=TH.mut;g.globalAlpha=.5;g.lineWidth=1.5;g.beginPath();g.arc(cx,cy,PX,0,TAU);g.stroke();g.globalAlpha=1;g.setLineDash([]);
+ if(step>=1){
+  const a=curA*D2R,ex=cx+PX*Math.cos(a),ey=cy-PX*Math.sin(a);
+  if(!arc){
+   for(let d=0;d<360;d+=30){const r0=PX+3,r1=PX+(d%90===0?14:8),c=Math.cos(d*D2R),sn=Math.sin(d*D2R);g.beginPath();g.moveTo(cx+r0*c,cy-r0*sn);g.lineTo(cx+r1*c,cy-r1*sn);g.strokeStyle=TH.mut;g.lineWidth=d%90===0?2:1;g.globalAlpha=.7;g.stroke();g.globalAlpha=1}
+   // setores coloridos (ângulos centrais)
+   for(let i=1;i<=6;i++){const a0=(i-1)*60*D2R,a1=Math.min(i*60,curA)*D2R;if(a1<=a0)continue;
+    g.beginPath();g.moveTo(cx,cy);g.arc(cx,cy,PX,-a0,-a1,true);g.closePath();
+    const gr=g.createRadialGradient(cx,cy,0,cx,cy,PX);gr.addColorStop(0,COLORS[i-1]+'30');gr.addColorStop(1,COLORS[i-1]+'66');g.fillStyle=gr;g.fill();
+    g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+PX*Math.cos(a0),cy-PX*Math.sin(a0));g.strokeStyle=COLORS[i-1];g.lineWidth=1.6;g.globalAlpha=.8;g.stroke();g.globalAlpha=1;
+    g.beginPath();g.arc(cx,cy,78,-a0,-a1,true);g.strokeStyle=COLORS[i-1];g.lineWidth=5;g.lineCap='round';g.stroke();
+    if(curA>=i*60-.5){const m=(i*60-30)*D2R;label(g,'Δθ'+SB[i],cx+128*Math.cos(m),cy-128*Math.sin(m)+6,COLORS[i-1],18)}}
+   // arco da borda discreto (cor comum)
+   if(curA>0.5){g.beginPath();g.arc(cx,cy,PX,0,-a,true);g.strokeStyle=TH.mut;g.globalAlpha=.55;g.lineWidth=4;g.lineCap='round';g.stroke();g.globalAlpha=1}
+   // raio inicial e raio móvel
+   g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+PX,cy);g.strokeStyle=TH.ink;g.lineWidth=2.5;g.stroke();
+   g.beginPath();g.moveTo(cx,cy);g.lineTo(ex,ey);g.strokeStyle=TH.ink;g.lineWidth=3;g.stroke();
+   if(curA>0.5){g.beginPath();g.arc(cx,cy,40,0,-a,true);g.strokeStyle=TH.ink;g.lineWidth=2.2;g.stroke();label(g,'θ',cx+66*Math.cos(a/2),cy-66*Math.sin(a/2)+6,TH.ink,19)}
+   label(g,'R',cx+PX/2,cy+22,TH.mut,15);
+   for(let i=1;i<=6;i++)if(curA>=i*60-0.5){const m=i*60*D2R;label(g,i===6?'360°':i*60+'°',cx+(PX+30)*Math.cos(m),cy-(PX+30)*Math.sin(m)+5,TH.mut,13)}
+   label(g,`θ = ${curA.toFixed(0)}°  =  ${fmt(curA*D2R)} rad`,18,32,TH.ink,16,'left');
+   label(g,`cada ângulo: Δθ = 60° = π/3 rad`,18,56,TH.mut,15,'left');
+  }else{
+   // só os arcos coloridos na borda; o interior fica em branco
+   for(let i=1;i<=6;i++){const a0=(i-1)*60*D2R,a1=Math.min(i*60,curA)*D2R;if(a1<=a0)continue;
+    g.beginPath();g.arc(cx,cy,PX,-a0,-a1,true);g.strokeStyle=COLORS[i-1];g.lineWidth=10;g.lineCap='butt';g.stroke();
+    [a0,a1].forEach(q=>{if(q===a1&&curA<i*60-.5)return;g.beginPath();g.moveTo(cx+(PX-12)*Math.cos(q),cy-(PX-12)*Math.sin(q));g.lineTo(cx+(PX+12)*Math.cos(q),cy-(PX+12)*Math.sin(q));g.strokeStyle=COLORS[i-1];g.lineWidth=2.5;g.stroke()});
+    if(curA>=i*60-.5){const m=(i*60-30)*D2R;label(g,'Δs'+SB[i],cx+(PX+34)*Math.cos(m),cy-(PX+34)*Math.sin(m)+6,COLORS[i-1],18)}}
+   g.beginPath();g.moveTo(cx,cy);g.lineTo(ex,ey);g.strokeStyle=TH.mut;g.globalAlpha=.35;g.lineWidth=1.5;g.stroke();g.globalAlpha=1;
+   const s=curA*D2R*R_REAL;
+   label(g,`arco percorrido  s = ${fmt(s)} m`,18,32,TH.ink,16,'left');
+   label(g,`cada arco: Δs = ${fmt(60*D2R*R_REAL)} m`,18,56,TH.mut,15,'left');
+  }
+  const bg=g.createRadialGradient(ex-3,ey-3,1,ex,ey,11);bg.addColorStop(0,shade(TH.ink,.5));bg.addColorStop(1,TH.ink);
+  g.beginPath();g.arc(ex,ey,10,0,TAU);g.fillStyle=bg;g.fill();g.lineWidth=2.5;g.strokeStyle=TH.card;g.stroke();
+ }else label(g,'Nenhuma figura ainda…',cx,cy,TH.mut,18);
+ g.fillStyle=TH.mut;g.beginPath();g.arc(cx,cy,4,0,TAU);g.fill()}
+
+/* ---------- 2 SIMULADOR (2 esferas + Tempo Limite) ---------- */
+const g2=setupCanvas('c2',640,640);
+const S=[{T:4,th0:0,R:6,color:'#d9480f',touched:false,on:true,ang:0,sw:0},
+         {T:4,th0:90,R:10,color:'#0b6bcb',touched:false,on:true,ang:0,sw:0}];
+let rodando=true,tempo=0;
+let usarTempoLimite=false,tempoLimite=10;
+
+function toggleTL(){
+ usarTempoLimite=$('ckTL').checked;
+ $('tlBox').classList.toggle('hide',!usarTempoLimite);
+ resetSim();
+}
+function setTL(v){
+ tempoLimite=v;
+ $('tlInput').value=v;
+ resetSim();
+ rodando=true;
+}
+function applyTL(){
+ const val=parseFloat($('tlInput').value);
+ if(val&&val>0){tempoLimite=val;resetSim();rodando=true}
+}
+function resetSim(){tempo=0;S.forEach(s=>{s.ang=s.th0*D2R;s.sw=0})}
+function showT(i){const s=S[i],el=$('T'+i);
+ if(s.mode==='T'){el.min=1;el.max=10;el.step=.5;el.value=s.T;$('vT'+i).textContent=fmt(s.T)+' s';$('mT'+i).innerHTML='Período T ⇄'}
+ else{el.min=.1;el.max=1;el.step=.01;el.value=1/s.T;$('vT'+i).textContent=fmt(1/s.T)+' Hz';$('mT'+i).innerHTML='Frequência f ⇄'}}
+function toggleFT(i){S[i].mode=S[i].mode==='T'?'f':'T';showT(i)}
+function buildCards(){
+ S.forEach(s=>s.mode='T');
+ $('cards').innerHTML=[0,1].map(i=>`
+ <div class="sph" id="card${i}" style="--sc:${S[i].color}">
+  <div class="sph-h">${i==0?'<b>Esfera 1</b>':'<label class="ck" style="margin:0"><input type="checkbox" id="on1" checked><b>Esfera 2</b></label>'}
+   <label class="clr">Cor <input type="color" id="col${i}" value="${S[i].color}"></label></div>
+  <div class="sl"><button type="button" class="ftb" id="mT${i}" onclick="toggleFT(${i})">Período T ⇄</button><b id="vT${i}">${fmt(S[i].T)} s</b></div><input type="range" id="T${i}" min="1" max="10" step="0.5" value="${S[i].T}">
+  <label class="sl"><span>Ângulo inicial θ₀</span><b id="vth${i}">${S[i].th0}°</b></label><input type="range" id="th${i}" min="0" max="360" step="15" value="${S[i].th0}">
+  <label class="sl"><span>Raio R</span><b id="vR${i}">${S[i].R} m</b></label><input type="range" id="R${i}" min="2" max="14" step="1" value="${S[i].R}">
+ </div>`).join('');
+ [0,1].forEach(i=>{
+  $('T'+i).oninput=e=>{const v=+e.target.value;S[i].T=S[i].mode==='T'?v:1/v;$('vT'+i).textContent=S[i].mode==='T'?fmt(S[i].T)+' s':fmt(1/S[i].T)+' Hz'};
+  $('th'+i).oninput=e=>{S[i].th0=+e.target.value;$('vth'+i).textContent=S[i].th0+'°';resetSim()};
+  $('R'+i).oninput=e=>{S[i].R=+e.target.value;$('vR'+i).textContent=S[i].R+' m'};
+  $('col'+i).oninput=e=>{S[i].color=e.target.value;S[i].touched=true;$('card'+i).style.setProperty('--sc',S[i].color)};
+ });
+ $('on1').onchange=e=>{S[1].on=e.target.checked;$('card1').classList.toggle('off',!S[1].on);resetSim()};
+}
+let lastDash=0;
+function drawSim(dt){
+ const g=g2,W=640,cx=320,cy=320,K=18;g.clearRect(0,0,W,W);
+ if(rodando){
+  if(usarTempoLimite){
+   if(tempo+dt>=tempoLimite){
+    const rem=tempoLimite-tempo;
+    tempo=tempoLimite;
+    rodando=false;
+    S.forEach(s=>{if(!s.on)return;const w=TAU/s.T;s.ang+=w*rem;s.sw+=w*rem});
+   }else{
+    tempo+=dt;
+    S.forEach(s=>{if(!s.on)return;const w=TAU/s.T;s.ang+=w*dt;s.sw+=w*dt});
+   }
+  }else{
+   tempo+=dt;
+   S.forEach(s=>{if(!s.on)return;const w=TAU/s.T;s.ang+=w*dt;s.sw+=w*dt});
+  }
+ }
+ const act=S.map((s,i)=>({s,i})).filter(o=>o.s.on);
+ const vs=act.map(o=>TAU/o.s.T*o.s.R),acs=act.map(o=>Math.pow(TAU/o.s.T,2)*o.s.R);
+ const kv=Math.min(11,165/Math.max(...vs)),kac=Math.min(3.5,115/Math.max(...acs));
+ const ws=act.map(o=>TAU/o.s.T),kw=Math.min(20,120/Math.max(...ws));
+ // eixo de referência
+ g.setLineDash([3,7]);g.strokeStyle=TH.mut;g.globalAlpha=.4;g.lineWidth=1;g.beginPath();g.moveTo(20,cy);g.lineTo(W-20,cy);g.moveTo(cx,20);g.lineTo(cx,W-20);g.stroke();g.globalAlpha=1;g.setLineDash([]);
+ // trajetórias, arcos
+ act.forEach(({s})=>{const Rp=s.R*K,a0=s.th0*D2R;
+  g.setLineDash([6,7]);g.strokeStyle=rgba(s.color,.55);g.lineWidth=2;g.beginPath();g.arc(cx,cy,Rp,0,TAU);g.stroke();g.setLineDash([]);
+  g.strokeStyle=rgba(s.color,.45);g.lineWidth=1.5;g.setLineDash([2,5]);g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Rp*Math.cos(a0),cy-Rp*Math.sin(a0));g.stroke();g.setLineDash([]);
+  if($('ckS').checked){const sw=s.sw%TAU;
+   g.beginPath();g.moveTo(cx,cy);g.arc(cx,cy,Rp,-a0,-(a0+sw),true);g.closePath();g.fillStyle=rgba(s.color,.13);g.fill();
+   g.beginPath();g.arc(cx,cy,Rp,-a0,-(a0+sw),true);g.strokeStyle=s.color;g.lineWidth=7;g.lineCap='round';g.stroke()}});
+ g.fillStyle=TH.ink;g.beginPath();g.arc(cx,cy,4,0,TAU);g.fill();
+ // vetores (apenas se tempo limite NÃO ocultar)
+ act.forEach(({s,i})=>{
+  const a=s.ang,Rp=s.R*K,x=cx+Rp*Math.cos(a),y=cy-Rp*Math.sin(a),w=TAU/s.T,v=w*s.R,ac=w*w*s.R;
+  const ux=Math.cos(a),uy=-Math.sin(a),tx=-Math.sin(a),ty=-Math.cos(a),sub=act.length>1?['₁','₂'][i]:'';
+  g.strokeStyle=rgba(s.color,.6);g.lineWidth=2;g.beginPath();g.moveTo(cx,cy);g.lineTo(x,y);g.stroke();
+  if(!usarTempoLimite){
+   if($('ckW').checked){const r=Math.max(10,kw*w)+i*6;arcArrow(g,cx,cy,r,20,300,s.color,true,3);label(g,'ω'+sub,cx+(r+18)*Math.cos(-.3),cy+(r+18)*Math.sin(.3)+6,s.color,15)}
+   if($('ckA').checked){const L=Math.min(ac*kac,Math.max(Rp-18,24));arrow(g,x,y,x-ux*L,y-uy*L,s.color,3.5,[8,6]);
+    label(g,'ac'+sub,x-ux*(L+20),y-uy*(L+20)+5,s.color,15)}
+   if($('ckV').checked){const L=v*kv;arrow(g,x,y,x+tx*L,y+ty*L,s.color,5.5);
+    label(g,'v'+sub,x+tx*(L+20),y+ty*(L+20)+5,s.color,17)}
+   if($('ckV').checked&&$('ckA').checked){const q=13;g.beginPath();g.moveTo(x+tx*q,y+ty*q);g.lineTo(x+tx*q-ux*q,y+ty*q-uy*q);g.lineTo(x-ux*q,y-uy*q);g.strokeStyle=TH.ink;g.lineWidth=1.3;g.stroke()}
+  }
+ });
+ // ângulo φ medido a partir do eixo x
+ if($('ckPhi').checked)act.forEach(({s,i})=>{const ph=((s.ang%TAU)+TAU)%TAU,rr=34+i*12;g.beginPath();g.arc(cx,cy,rr,0,-ph,true);g.strokeStyle=s.color;g.lineWidth=2.5;g.stroke();
+  label(g,'φ'+(act.length>1?['₁','₂'][i]:'')+' = '+Math.round(ph/D2R)+'°',cx+(rr+30)*Math.cos(ph/2),cy-(rr+30)*Math.sin(ph/2)+5,s.color,14)});
+ // esferas
+ act.forEach(({s})=>{const x=cx+s.R*K*Math.cos(s.ang),y=cy-s.R*K*Math.sin(s.ang);
+  const gr=g.createRadialGradient(x-5,y-5,2,x,y,15);gr.addColorStop(0,shade(s.color,.6));gr.addColorStop(.55,s.color);gr.addColorStop(1,shade(s.color,-.35));
+  g.beginPath();g.arc(x,y,14,0,TAU);g.fillStyle=gr;g.fill();g.lineWidth=3;g.strokeStyle=TH.card;g.stroke()});
+ const now=performance.now();if(now-lastDash>120){lastDash=now;updDash(act)}
+}
+function updDash(act){
+ if(usarTempoLimite){
+  // Exibir APENAS: tempo, ângulo percorrido, arco percorrido e número de voltas
+  const rows=[
+   ['Tempo decorrido','s',s=>tempo],
+   ['Ângulo percorrido (graus)','°',s=>(s.sw/D2R)],
+   ['Ângulo percorrido (rad)','rad',s=>s.sw],
+   ['Arco percorrido (s = θ·R)','m',s=>s.sw*s.R],
+   ['Número de voltas','voltas',s=>s.sw/TAU]
+  ];
+  let stTxt=rodando?'Em andamento':(tempo>=tempoLimite?'Finalizado':'Pausado');
+  let h=`<table><thead><tr><th>Tempo limite: ${fmt(tempoLimite,1)} s (${stTxt})</th>`+S.map((s,i)=>`<th style="color:${s.color}"><span class="dot" style="background:${s.color}"></span>Esfera ${i+1}</th>`).join('')+'</tr></thead><tbody>';
+  rows.forEach(r=>{h+=`<tr><td>${r[0]}${r[1]?' <span style="color:var(--mut)">('+r[1]+')</span>':''}</td>`+S.map(s=>s.on?`<td><b style="color:${s.color}">${fmt(r[2](s),r[0].startsWith('Ângulo percorrido (graus')?1:2)}</b></td>`:'<td>—</td>').join('')+'</tr>'});
+  $('dash').innerHTML=h+'</tbody></table>';$('cmp').innerHTML=tempo>=tempoLimite?
+   `<b>Simulação concluída!</b> No tempo limite de <b>${tempoLimite} s</b>, cada esfera percorreu o ângulo e arco listados acima.`:
+   `<b>Modo Tempo Limite (${tempoLimite} s) ativado.</b> Métrica reduzida a Ângulo, Arco e Voltas percorrida(s).`;
+ }else{
+  // Modo normal completo
+  const rows=[['Raio R','m',s=>s.R],['Período T','s',s=>s.T],['Frequência f = 1/T','Hz',s=>1/s.T],['Velocidade angular ω = 2π/T','rad/s',s=>TAU/s.T],
+   ['Velocidade linear v = ω·R','m/s',s=>TAU/s.T*s.R],['Aceleração centrípeta ac = ω²·R','m/s²',s=>Math.pow(TAU/s.T,2)*s.R],
+   ['Posição angular atual','°',s=>((s.ang/D2R)%360+360)%360],['Voltas completas','',s=>Math.floor(s.sw/TAU)],['Ângulo percorrido Δφ = ω·t','rad',s=>s.sw],['Arco percorrido s = Δφ·R','m',s=>s.sw*s.R]];
+  let h=`<table><thead><tr><th>Tempo: ${fmt(tempo,1)} s</th>`+S.map((s,i)=>`<th style="color:${s.color}"><span class="dot" style="background:${s.color}"></span>Esfera ${i+1}</th>`).join('')+'</tr></thead><tbody>';
+  rows.forEach(r=>{h+=`<tr><td>${r[0]}${r[1]?' <span style="color:var(--mut)">('+r[1]+')</span>':''}</td>`+S.map(s=>s.on?`<td><b style="color:${s.color}">${fmt(r[2](s),r[0].startsWith('Posição')?1:2)}</b></td>`:'<td>—</td>').join('')+'</tr>'});
+  $('dash').innerHTML=h+'</tbody></table>';
+  let m;
+  if(act.length<2)m='Ative a Esfera 2 para comparar duas esferas.';
+  else{const [a,b]=[S[0],S[1]];const va=TAU/a.T*a.R,vb=TAU/b.T*b.R;
+   m=a.T===b.T?`<b>Mesmo período ⇒ mesma frequência e mesma ω.</b> `:`<b>Períodos diferentes ⇒ ω e f diferentes.</b> `;
+   m+=va===vb?'As duas têm a mesma velocidade linear.':`Como v = ω·R, a esfera ${va>vb?1:2} tem maior velocidade linear (${fmt(Math.max(va,vb))} m/s contra ${fmt(Math.min(va,vb))} m/s).`}
+  $('cmp').innerHTML=m;
+ }
+}
+
+/* ---------- 3 TRANSMISSÃO ---------- */
+const g3=setupCanvas('c3',760,540);
+const TR={mode:'gear',view:'top',fA:.25,RA:6,RB:10,sA:0,sB:0,belt:0};let rodando3=true;
+
+// Dados da Bicicleta
+const bike={coroaIdx:1,catracaIdx:2,fPedal:1.0,rRoda:30,coroaTeeth:[30,42],catracaTeeth:[12,18,24]};
+function setCoroa(idx){
+ bike.coroaIdx=idx;
+ $('btnCoroa1').classList.toggle('on',idx==1);
+ $('btnCoroa2').classList.toggle('on',idx==2);$('vCoroa').textContent=`Coroa ${idx} (${bike.coroaTeeth[idx-1]} dentes)`;
+}
+function setCatraca(idx){
+ bike.catracaIdx=idx;
+ $('btnCat1').classList.toggle('on',idx==1);
+ $('btnCat2').classList.toggle('on',idx==2);$('btnCat3').classList.toggle('on',idx==3);
+ const t=bike.catracaTeeth[idx-1];
+ const desc=idx==1?'12 dentes · Rápida':idx==2?'18 dentes · Média':'24 dentes · Subida';
+ $('vCatraca').textContent=`Catraca ${idx} (${desc})`;
+}
+let ftP='f',ftA='f';
+function showP(){const el=$('fPedal');
+ if(ftP==='f'){el.min=.05;el.max=2;el.step=.05;el.value=bike.fPedal;$('vfPedal').textContent=fmt(bike.fPedal,2)+' Hz';$('mfP').innerHTML='Frequência dos pedais (f<sub>pedal</sub>) ⇄'}
+ else{el.min=.5;el.max=20;el.step=.1;el.value=1/bike.fPedal;$('vfPedal').textContent=fmt(1/bike.fPedal,2)+' s';$('mfP').innerHTML='Período dos pedais (T<sub>pedal</sub>) ⇄'}}
+function toggleP(){ftP=ftP==='f'?'T':'f';showP()}
+$('fPedal').oninput=e=>{const v=+e.target.value;bike.fPedal=ftP==='f'?v:1/v;showP2()};
+function showP2(){$('vfPedal').textContent=ftP==='f'?fmt(bike.fPedal,2)+' Hz':fmt(1/bike.fPedal,2)+' s'}
+function showA(){const el=$('fA');
+ if(ftA==='f'){el.min=.05;el.max=1;el.step=.05;el.value=TR.fA;$('vfA').textContent=fmt(TR.fA)+' Hz';$('mfA').innerHTML='Frequência da roda A (f<sub>A</sub>) ⇄'}
+ else{el.min=1;el.max=20;el.step=.1;el.value=1/TR.fA;$('vfA').textContent=fmt(1/TR.fA)+' s';$('mfA').innerHTML='Período da roda A (T<sub>A</sub>) ⇄'}}
+function toggleA(){ftA=ftA==='f'?'T':'f';showA()}
+$('RRoda').oninput=e=>{bike.rRoda=+e.target.value;$('vRRoda').textContent=bike.rRoda+' cm'};
+
+$('fA').oninput=e=>{const v=+e.target.value;TR.fA=ftA==='f'?v:1/v;$('vfA').textContent=ftA==='f'?fmt(TR.fA)+' Hz':fmt(1/TR.fA)+' s'};
+$('RA').oninput=e=>{TR.RA=+e.target.value;$('vRA').textContent=TR.RA+' cm';syncGear()};
+$('RB').oninput=e=>{TR.RB=+e.target.value;$('vRB').textContent=TR.RB+' cm';syncGear()};
+function resetTR(){TR.sA=0;TR.sB=0;TR.belt=0}
+function syncGear(){if(TR.mode==='gear')TR.sB=-TR.sA*TR.RA/TR.RB}
+document.querySelectorAll('#modes .btn').forEach(b=>b.onclick=()=>{
+ const m=b.dataset.m;
+ if(TR.mode!==m)resetTR();
+ if(m==='coax')TR.view=(TR.mode==='coax'&&TR.view==='top')?'3d':'top';
+ TR.mode=m;
+ document.querySelectorAll('#modes .btn').forEach(x=>x.classList.toggle('on',x===b));
+ $('stdWheelCtrls').classList.toggle('hide',m==='bike');$('bikeCtrls').classList.toggle('hide',m!=='bike');
+ document.querySelector('#modes [data-m=coax]').textContent=m!=='coax'?'⊙ Mesmo eixo':(TR.view==='3d'?'⊙ Mesmo eixo · vista 3D':'⊙ Mesmo eixo · de cima')});
+
+function P(cx,cy,r,ph){return[cx+r*Math.cos(ph),cy-r*Math.sin(ph)]}
+function wheel(g,x,y,Rp,N,ph,col,gear,hpx,fa=.34,lw=3){
+ g.beginPath();
+ if(gear){const p=TAU/N;for(let k=0;k<N;k++){const c=ph+k*p;
+   [[-.5,Rp-hpx],[-.2,Rp+hpx],[.2,Rp+hpx],[.5,Rp-hpx]].forEach((q,j)=>{const [px,py]=P(x,y,q[1],c+q[0]*p);(k==0&&j==0)?g.moveTo(px,py):g.lineTo(px,py)})}
+   g.closePath()}else g.arc(x,y,Rp,0,TAU);
+ g.fillStyle=TH.card;g.fill();g.fillStyle=rgba(col,fa);g.fill();g.strokeStyle=col;g.lineWidth=lw;g.lineJoin='round';g.stroke();
+ g.beginPath();g.arc(x,y,4,0,TAU);g.fillStyle=col;g.fill()}
+
+/* Desenho específico do Modo Bicicleta */
+function drawBikeMode(g,W,H,dt){
+ const cx1=220,cx2=540,cy=270;
+ const nCoroa=bike.coroaTeeth[bike.coroaIdx-1];
+ const nCatraca=bike.catracaTeeth[bike.catracaIdx-1];
+ const iRatio=nCoroa/nCatraca;
+ const fCoroa=bike.fPedal;
+ const fCatraca=fCoroa*iRatio;
+ const wCoroa=TAU*fCoroa,wCatraca=TAU*fCatraca;
+ const rCoroaPx=nCoroa*1.4,rCatracaPx=nCatraca*1.4;
+ const rRodaPx=bike.rRoda*4.2;
+
+ if(rodando3){
+  TR.sA+=wCoroa*dt;
+  TR.sB+=wCatraca*dt;
+  TR.belt+=wCoroa*rCoroaPx*dt;
+ }
+ const aCoroa=TR.sA,aRoda=TR.sB;
+ const [c1,c2]=[TH.c1,TH.c2];
+
+ // 1. Desenho da Coroa (Pedaleira - Dianteira)
+ wheel(g,cx1,cy,rCoroaPx,nCoroa,aCoroa,c1,true,4);
+ // Manivelas e Pedais
+ const pL=rCoroaPx+28;
+ const px1=cx1+pL*Math.cos(aCoroa),py1=cy-pL*Math.sin(aCoroa);
+ const px2=cx1-pL*Math.cos(aCoroa),py2=cy+pL*Math.sin(aCoroa);
+ g.strokeStyle=TH.ink;g.lineWidth=6;g.lineCap='round';
+ g.beginPath();g.moveTo(cx1,cy);g.lineTo(px1,py1);g.moveTo(cx1,cy);g.lineTo(px2,py2);g.stroke();
+ g.fillStyle=TH.acc;g.fillRect(px1-10,py1-5,20,10);g.fillRect(px2-10,py2-5,20,10);
+ // Raio fino de referência na Coroa (defasado 90° da manivela para não se sobrepor)
+ {const ra=aCoroa+Math.PI/2,rx=cx1+rCoroaPx*Math.cos(ra),ry=cy-rCoroaPx*Math.sin(ra);
+  g.strokeStyle=c1;g.lineWidth=1.8;g.lineCap='round';g.beginPath();g.moveTo(cx1,cy);g.lineTo(rx,ry);g.stroke();
+  g.beginPath();g.arc(rx,ry,7,0,TAU);g.fillStyle=c1;g.fill();g.strokeStyle=TH.card;g.lineWidth=2;g.stroke();}
+
+ // 2. Desenho da Roda Traseira + Catracas
+ // Pneu e Aro da Roda Traseira
+ g.beginPath();g.arc(cx2,cy,rRodaPx+10,0,TAU);g.strokeStyle='#2b3140';g.lineWidth=12;g.stroke();
+ g.beginPath();g.arc(cx2,cy,rRodaPx,0,TAU);g.strokeStyle=TH.mut;g.lineWidth=3;g.stroke();
+ // Raios da Roda de Bicicleta (12 raios girando)
+ const nSpokes=12;
+ g.strokeStyle=rgba(TH.ink,.4);g.lineWidth=1.5;
+ for(let k=0;k<nSpokes;k++){
+  const sa=aRoda+k*(TAU/nSpokes);
+  g.beginPath();g.moveTo(cx2,cy);g.lineTo(cx2+rRodaPx*Math.cos(sa),cy-rRodaPx*Math.sin(sa));g.stroke();
+ }
+ // Ponto de referência visual no pneu (Válvula / Marca vermelha)
+ const vx=cx2+rRodaPx*Math.cos(aRoda),vy=cy-rRodaPx*Math.sin(aRoda);
+
+ // Catracas empilhadas no cubo: a maior fica ATRÁS e a menor à FRENTE; todas azuis
+ for(let k=bike.catracaTeeth.length-1;k>=0;k--){
+  const nTeeth=bike.catracaTeeth[k];
+  const rPx=nTeeth*1.4;
+  const isAct=k===(bike.catracaIdx-1);
+  wheel(g,cx2,cy,rPx,nTeeth,aRoda,c2,true,3,isAct?.6:.28,isAct?4:2.5);
+ }
+ // Raio fino de referência da roda traseira (desenhado por cima das catracas)
+ g.strokeStyle=c2;g.lineWidth=1.8;g.lineCap='round';g.beginPath();g.moveTo(cx2,cy);g.lineTo(vx,vy);g.stroke();
+ g.beginPath();g.arc(vx,vy,7,0,TAU);g.fillStyle=c2;g.fill();g.strokeStyle=TH.card;g.lineWidth=2;g.stroke();
+
+ // 3. Corrente de Transmissão
+ const dx=cx2-cx1,r1=rCoroaPx,r2=rCatracaPx;
+ const bAng=Math.acos((r1-r2)/dx);
+ g.beginPath();
+ g.moveTo(cx1+r1*Math.cos(bAng),cy-r1*Math.sin(bAng));
+ g.lineTo(cx2+r2*Math.cos(bAng),cy-r2*Math.sin(bAng));
+ g.arc(cx2,cy,r2,-bAng,bAng,false);
+ g.lineTo(cx1+r1*Math.cos(bAng),cy+r1*Math.sin(bAng));
+ g.arc(cx1,cy,r1,bAng,-bAng,false);
+ g.closePath();
+ g.strokeStyle='#4a6178';g.lineWidth=6;g.stroke();
+ g.setLineDash([6,8]);g.lineDashOffset=-TR.belt;g.strokeStyle='#f5a623';g.lineWidth=2.5;g.stroke();
+ g.setLineDash([]);g.lineDashOffset=0;
+
+ // 4. Vetores de Velocidade Angular e Linear
+ const showW=$('ckTW').checked,showV=$('ckTV').checked;
+ if(showW){
+  arcArrow(g,cx1,cy,32,20,300,c1,true,3);
+  label(g,'ω_pedal = '+fmt(wCoroa)+' rad/s',cx1,cy-rCoroaPx-36,c1,14);
+  arcArrow(g,cx2,cy,32,20,300,c2,true,3);
+  label(g,'ω_roda = '+fmt(wCatraca)+' rad/s',cx2,cy-rCatracaPx-36,c2,14);
+ }
+ const vBike=wCatraca*bike.rRoda; // cm/s
+ if(showV){
+  const L=Math.min(100,vBike*0.5);
+  arrow(g,cx2,cy-rRodaPx,cx2-L,cy-rRodaPx,c2,5);
+  label(g,'v_bicicleta = '+fmt(vBike/100,2)+' m/s',cx2-L/2,cy-rRodaPx-14,c2,15);
+ }
+
+ // Rótulos dos componentes
+ label(g,'Coroa ('+nCoroa+'d) e Pedal',cx1,cy+rCoroaPx+45,c1,15);
+ label(g,'Catraca ('+nCatraca+'d) e Roda Traseira',cx2,cy+rRodaPx+24,c2,15);
+
+ // Regra e explicação
+ const html=`<b>Transmissão por Corrente na Bicicleta:</b> A coroa dos pedais liga-se à catraca na roda traseira via corrente (mesma velocidade linear na corrente, v<sub>coroa</sub> = v<sub>catraca</sub>). A catraca e a roda traseira compartilham o <b>mesmo eixo</b> (mesma velocidade angular ω).<br>`+
+  `Relação de Marcha: <b>i = N<sub>coroa</sub> / N<sub>catraca</sub> = ${nCoroa} / ${nCatraca} = ${fmt(iRatio)}</b>. Quanto menor a catraca (menos dentes), mais voltas a roda dá para cada pedalada!`+
+  `<div class="mono" style="margin-top:8px">f<sub>coroa</sub>·N<sub>coroa</sub> = f<sub>catraca</sub>·N<sub>catraca</sub> ⇒ ${fmt(fCoroa)}×${nCoroa} = ${fmt(fCatraca)}×${nCatraca}</div>`;
+ if(TR._h!==html){TR._h=html;$('trRule').innerHTML=html}
+
+ // Tabela
+ const distPedalada=(TAU*(bike.rRoda/100)*iRatio); // metros por pedalada
+ const rows=[
+  ['Número de dentes (N)',nCoroa,nCatraca],
+  ['Frequência f (Hz / voltas por s)',fmt(fCoroa,3),fmt(fCatraca,3)],
+  ['Velocidade angular ω (rad/s)',fmt(wCoroa),fmt(wCatraca)],
+  ['Relação de transmissão i (N₁/N₂)',fmt(iRatio),fmt(iRatio)],
+  ['Velocidade linear da bicicleta v (m/s)',fmt(vBike/100,2),fmt(vBike/100,2)],
+  ['Velocidade da bicicleta (km/h)',fmt(vBike/100*3.6,1),fmt(vBike/100*3.6,1)],
+  ['Desenvolvimento (distância por pedalada)',fmt(distPedalada,2)+' m',fmt(distPedalada,2)+' m']
+ ];
+ const th=`<table><thead><tr><th>Métrica da Bicicleta</th><th style="color:${c1}"><span class="dot" style="background:${c1}"></span>Coroa (Pedais)</th><th style="color:${c2}"><span class="dot" style="background:${c2}"></span>Catraca / Roda Traseira</th></tr></thead><tbody>`+
+  rows.map(r=>`<tr><td>${r[0]}</td><td><b style="color:${c1}">${r[1]}</b></td><td><b style="color:${c2}">${r[2]}</b></td></tr>`).join('')+'</tbody></table>';
+ if(TR._t!==th){TR._t=th;$('trTbl').innerHTML=th}
+}
+
+function draw3D(g,W,H,RA,RB,m,vA,vB,kv,c1,c2,showW,showV,w){
+ const al=38*D2R,be=24*D2R,ca=Math.cos(al),sa=Math.sin(al),cb=Math.cos(be),sb=Math.sin(be);
+ const s=Math.min(17,320/(2*Math.max(RA,RB)+4)),cx=W/2,cy=H/2+16;
+ const kw=Math.min(20,.8*Math.min(RA,RB)*s/w);
+ const pr=(X,Y,Z)=>[cx+s*(X*ca-Y*sa),cy-s*(Z*cb+(X*sa+Y*ca)*sb)];
+ const xa=-12,xb=12,th=1.4,dark=document.documentElement.dataset.theme==='dark';
+ const rod=dark?'#c9d4e4':'#2b3140',rodHi=dark?'#ffffff':'#8591a6';
+ const circ=(X,R,r0=0,r1=TAU,n=64)=>{const a=[];for(let i=0;i<=n;i++){const t=r0+(r1-r0)*i/n;a.push(pr(X,R*Math.cos(t),R*Math.sin(t)))}return a};
+ const poly=pts=>{g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]))};
+ const seg=(x1,x2)=>{const a=pr(x1,0,0),b=pr(x2,0,0);g.lineCap='butt';
+  g.strokeStyle=rod;g.lineWidth=12;g.beginPath();g.moveTo(...a);g.lineTo(...b);g.stroke();
+  g.strokeStyle=rodHi;g.globalAlpha=.55;g.lineWidth=3;g.beginPath();g.moveTo(a[0],a[1]-3);g.lineTo(b[0],b[1]-3);g.stroke();g.globalAlpha=1};
+ const disc=(x0,R,col,tag,v)=>{
+  for(let k=6;k>=1;k--){poly(circ(x0+th*k/6,R));g.fillStyle=shade(col,-.4);g.fill()}
+  poly(circ(x0+th,R));g.strokeStyle=shade(col,-.55);g.lineWidth=1.5;g.stroke();
+  poly(circ(x0,R));g.fillStyle=TH.card;g.fill();g.fillStyle=rgba(col,.34);g.fill();g.strokeStyle=col;g.lineWidth=3;g.lineJoin='round';g.stroke();
+  const c0=pr(x0,0,0),mp=pr(x0,R*Math.cos(m),R*Math.sin(m));
+  poly(circ(x0,.5,0,TAU,16));g.fillStyle=col;g.fill();
+  if(showW){const rpx=Math.max(9,kw*w),arc=circ(x0,rpx/s,25*D2R,330*D2R,28),n=arc.length,e=arc[n-1],p=arc[n-3],ang=Math.atan2(e[1]-p[1],e[0]-p[0]);
+   poly(arc);g.strokeStyle=TH.card;g.lineWidth=8;g.lineCap='round';g.stroke();g.strokeStyle=col;g.lineWidth=3.5;g.stroke();
+   g.fillStyle=col;g.beginPath();g.moveTo(e[0]+Math.cos(ang)*10,e[1]+Math.sin(ang)*10);
+   g.lineTo(e[0]+Math.cos(ang+2.5)*9,e[1]+Math.sin(ang+2.5)*9);g.lineTo(e[0]+Math.cos(ang-2.5)*9,e[1]+Math.sin(ang-2.5)*9);g.closePath();g.fill();
+   const tp=pr(x0,0,rpx/s);label(g,'ω'+tag+' = '+fmt(w)+' rad/s',tp[0],tp[1]-14,col,15)}
+  arrow(g,c0[0],c0[1],mp[0],mp[1],col,2.5);
+  label(g,'R'+tag,(c0[0]+mp[0])/2+14,(c0[1]+mp[1])/2+16,col,15);
+  if(showV){const L=v*kv*1.7/s,tp=pr(x0,R*Math.cos(m)-L*Math.sin(m),R*Math.sin(m)+L*Math.cos(m));
+   arrow(g,mp[0],mp[1],tp[0],tp[1],col,5);
+   const dx=tp[0]-mp[0],dy=tp[1]-mp[1],dl=Math.hypot(dx,dy)||1;
+   label(g,'v'+tag+' = '+fmt(v)+' cm/s',tp[0]+dx/dl*20,tp[1]+dy/dl*20+5,col,15)}
+  g.beginPath();g.arc(mp[0],mp[1],7,0,TAU);g.fillStyle=col;g.fill();g.lineWidth=2.5;g.strokeStyle=TH.card;g.stroke();
+  const tp2=pr(x0,0,R);label(g,'Roda '+tag,tp2[0],tp2[1]-16,col,16)};
+ seg(xb+th,18);disc(xb,RB,c2,'B',vB);
+ seg(xa+th,xb);disc(xa,RA,c1,'A',vA);
+ seg(-18,xa);
+ label(g,'Vista 3D · mesma ω, raios diferentes ⇒ velocidades lineares diferentes',W/2,28,TH.mut,15)}
+
+function drawTR(dt){
+ const g=g3,W=760,H=540,{mode,RA,RB,fA}=TR;g.clearRect(0,0,W,H);
+ if(mode==='bike'){drawBikeMode(g,W,H,dt);return}
+
+ const coax=mode==='coax',belt=mode==='belt',gear=mode==='gear',opp=gear||mode==='fric';
+ const fB=coax?fA:fA*RA/RB,vA=TAU*fA*RA,vB=TAU*fB*RB,wA=TAU*fA,wB=TAU*fB;
+ const dcm=coax?0:belt?RA+RB+6:RA+RB,wcm=coax?2*Math.max(RA,RB):dcm+RA+RB+(gear?1.4:0);
+ const sc=Math.min(30,(W-110)/wcm,(H-190)/(2*Math.max(RA,RB)+1.6));
+ if(rodando3){TR.sA+=wA*dt;TR.sB+=(opp?-1:1)*wB*dt;if(belt)TR.belt+=vA*sc*dt}
+ const y=H/2+4,xA=coax?W/2:W/2-(dcm*sc)/2,xB=coax?W/2:xA+dcm*sc,rA=RA*sc,rB=RB*sc,hpx=.7*sc;
+ const NA=2*RA,NB=2*RB;
+ const mA=(belt?Math.PI/2:0)+TR.sA,mB=(opp?Math.PI:belt?Math.PI/2:0)+TR.sB;
+ const ccwB=!opp,kv=Math.min(5,130/Math.max(vA,vB));
+ const [c1,c2]=[TH.c1,TH.c2],showW=$('ckTW').checked,showV=$('ckTV').checked;
+ if(belt){
+  const d=dcm*sc,b=Math.acos((rA-rB)/d);
+  g.beginPath();g.moveTo(xB+rB*Math.cos(b),y-rB*Math.sin(b));g.lineTo(xA+rA*Math.cos(b),y-rA*Math.sin(b));
+  g.arc(xA,y,rA,-b,b-TAU,true);g.lineTo(xB+rB*Math.cos(b),y+rB*Math.sin(b));g.arc(xB,y,rB,b,-b,true);g.closePath();
+  g.lineJoin='round';g.strokeStyle=TH.mut;g.lineWidth=9;g.stroke();
+  g.setLineDash([9,15]);g.lineDashOffset=-TR.belt;g.strokeStyle=TH.card;g.lineWidth=3.5;g.stroke();g.setLineDash([]);g.lineDashOffset=0}
+ if(coax&&TR.view==='3d')draw3D(g,W,H,RA,RB,TR.sA,vA,vB,kv,c1,c2,showW,showV,wA);
+ else{
+  if(coax){const big=RA>=RB;wheel(g,xA,y,big?rA:rB,0,0,big?c1:c2,false,0);wheel(g,xA,y,big?rB:rA,0,0,big?c2:c1,false,0)}
+  else{wheel(g,xA,y,rA,NA,mA,c1,gear,hpx);wheel(g,xB,y,rB,NB,mB+Math.PI/NB,c2,gear,hpx)}
+  if(showW){const kw=Math.min(20,.85*Math.min(rA,rB)/Math.max(wA,wB)),rw=w=>Math.max(9,kw*w);
+   if(coax){const r=rw(wA);arcArrow(g,xA,y,r,25,305,TH.ink,true,3.5);label(g,'ωA = ωB = '+fmt(wA)+' rad/s',xA,y-r-14,TH.ink,15)}
+   else{const ra=rw(wA),rb=rw(wB);
+    arcArrow(g,xA,y,ra,25,305,c1,true,3.5);label(g,'ωA = '+fmt(wA)+' rad/s',xA,y-ra-14,c1,15);
+    ccwB?arcArrow(g,xB,y,rb,25,305,c2,true,3.5):arcArrow(g,xB,y,rb,155,-125,c2,false,3.5);label(g,'ωB = '+fmt(wB)+' rad/s',xB,y-rb-14,c2,15)}}
+  const pts=[{x:xA,Rp:rA,m:mA,col:c1,v:vA,ccw:true,tag:'A',lw:6,dr:9},{x:xB,Rp:rB,m:mB,col:c2,v:vB,ccw:ccwB,tag:'B',lw:3.5,dr:6}];
+  pts.forEach(o=>{const [px,py]=P(o.x,y,o.Rp,o.m),tx=o.ccw?-Math.sin(o.m):Math.sin(o.m),ty=o.ccw?-Math.cos(o.m):Math.cos(o.m),L=o.v*kv;
+   g.strokeStyle=o.col;g.lineWidth=1.8;g.lineCap='round';g.beginPath();g.moveTo(o.x,y);g.lineTo(px,py);g.stroke();
+   o.px=px;o.py=py;o.tip=[px+tx*L,py+ty*L,tx,ty];if(showV)arrow(g,px,py,o.tip[0],o.tip[1],o.col,o.lw)});
+  if(showV)pts.forEach((o,i)=>{const t=o.tip,hz=Math.abs(t[2])>.35,al=t[2]>.35?'left':t[2]<-.35?'right':'center';
+   let ly=t[1]+t[3]*(hz?4:20)+5;
+   if(i==1&&Math.hypot(t[0]-pts[0].tip[0],t[1]-pts[0].tip[1])<110)ly+=22;
+   label(g,'v'+o.tag+' = '+fmt(o.v)+' cm/s',t[0]+t[2]*(hz?12:0),ly,o.col,15,al)});
+  pts.forEach(o=>{g.beginPath();g.arc(o.px,o.py,o.dr,0,TAU);g.fillStyle=o.col;g.fill();g.lineWidth=2.5;g.strokeStyle=TH.card;g.stroke()});
+  if(!coax)label(g,'A',xA,y-rA-(gear?hpx:0)-14,c1,20),label(g,'B',xB,y+rB+(gear?hpx:0)+28,c2,20);
+  else label(g,'A '+(RA>=RB?'(maior)':'(menor)'),W/2-90,34,c1,16),label(g,'B '+(RB>RA?'(maior)':'(menor)'),W/2+90,34,c2,16)}
+ const rule={gear:`<b>Engrenagens:</b> os dentes se encaixam, então a velocidade linear na borda é igual (v<sub>A</sub> = v<sub>B</sub>) e os sentidos são <b>opostos</b>. Como N = 2R, vale f<sub>A</sub>·N<sub>A</sub> = f<sub>B</sub>·N<sub>B</sub>: <b>a engrenagem menor gira mais rápido</b>.`,
+  fric:`<b>Rodas em contato (atrito):</b> sem escorregar, v<sub>A</sub> = v<sub>B</sub> e os sentidos são <b>opostos</b>. Logo f<sub>A</sub>·R<sub>A</sub> = f<sub>B</sub>·R<sub>B</sub>: <b>a roda menor gira mais rápido</b>.`,
+  belt:`<b>Correia:</b> a correia passa por toda a borda, então v<sub>A</sub> = v<sub>B</sub> e as rodas giram no <b>mesmo sentido</b>. Também f<sub>A</sub>·R<sub>A</sub> = f<sub>B</sub>·R<sub>B</sub>.`,
+  coax:`<b>Mesmo eixo:</b> as duas rodas giram juntas, então <b>ω e f são iguais</b> e o sentido é o mesmo. Como v = ω·R, a roda de <b>maior raio tem maior v</b>.<br><span style="color:var(--mut)">Clique de novo em “Mesmo eixo” para alternar entre a vista de cima e a vista 3D (atual: ${TR.view==='3d'?'3D':'de cima'}).</span>`}[mode];
+ const eq=coax?`ω<sub>A</sub> = ω<sub>B</sub> = ${fmt(TAU*fA)} rad/s`:`f<sub>A</sub>·R<sub>A</sub> = ${fmt(fA)} × ${RA} = <b>${fmt(fA*RA)}</b> &nbsp;|&nbsp; f<sub>B</sub>·R<sub>B</sub> = ${fmt(fB)} × ${RB} = <b>${fmt(fB*RB)}</b>`;
+ const html=rule+`<div class="mono" style="margin-top:8px">${eq}</div>`;
+ if(TR._h!==html){TR._h=html;$('trRule').innerHTML=html}
+ const rows=[['Raio R (cm)',RA,RB],...(gear?[['Nº de dentes N',NA,NB]]:[]),['Frequência f (Hz)',fA,fB],['Período T (s)',1/fA,1/fB],['Velocidade angular ω (rad/s)',TAU*fA,TAU*fB],['Velocidade linear v = ω·R (cm/s)',vA,vB]];
+ const th=`<table><thead><tr><th></th><th style="color:${c1}"><span class="dot" style="background:${c1}"></span>Roda A</th><th style="color:${c2}"><span class="dot" style="background:${c2}"></span>Roda B</th></tr></thead><tbody>`+rows.map(r=>`<tr><td>${r[0]}</td><td><b style="color:${c1}">${fmt(r[1])}</b></td><td><b style="color:${c2}">${fmt(r[2])}</b></td></tr>`).join('')+'</tbody></table>';
+ if(TR._t!==th){TR._t=th;$('trTbl').innerHTML=th}
+}
+
+/* ---------- 4 EXERCÍCIOS ---------- */
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const L1=[
+ ()=>{const f=pick([.5,2,4,5,.25,10]),T=1/f;return{q:`Uma roda gira com <b>frequência f = ${fmt(f)} Hz</b>. Qual é o seu <b>período T</b>?`,ans:T,unit:'s',wrong:[f,T*2,f*2],sol:`T = 1/f = 1/${fmt(f)} = <b>${fmt(T)} s</b>`}},
+ ()=>{const T=pick([.5,2,4,5,10,.25]),f=1/T;return{q:`Um ventilador tem <b>período T = ${fmt(T)} s</b>. Qual é a sua <b>frequência f</b>?`,ans:f,unit:'Hz',wrong:[T,f*2,T*2],sol:`f = 1/T = 1/${fmt(T)} = <b>${fmt(f)} Hz</b>`}},
+ ()=>{const T=pick([1,2,3,4,6,12]),w=6/T;return{q:`Um objeto dá uma volta a cada <b>T = ${T} s</b>. Qual é a <b>velocidade angular ω</b>? (use π = 3)`,ans:w,unit:'rad/s',wrong:[3/T,12/T,6*T],sol:`ω = 2π/T = 2·3/${T} = <b>${fmt(w)} rad/s</b>`}},
+ ()=>{const w=pick([2,3,4,5]),R=pick([2,3,5,10]),v=w*R;return{q:`Uma partícula tem <b>ω = ${w} rad/s</b> e <b>raio R = ${R} m</b>. Qual é a <b>velocidade linear v</b>?`,ans:v,unit:'m/s',wrong:[w+R,v*2,v/2],sol:`v = ω·R = ${w} × ${R} = <b>${v} m/s</b>`}},
+ ()=>{const T=pick([2,4,5,10]),k=pick([2,3,4,5,2.5]),t=T*k;return{q:`Um corpo tem período <b>T = ${T} s</b>. Quantas <b>voltas</b> ele dá em <b>${fmt(t)} s</b>?`,ans:k,unit:'voltas',wrong:[t*T,k*2,k+1],sol:`n = t/T = ${fmt(t)}/${T} = <b>${fmt(k)} voltas</b>`}},
+ ()=>{const v=pick([2,3,4,5,6]),t=pick([2,3,5,10]),d=v*t;return{q:`Um móvel em MCU tem <b>v = ${v} m/s</b>. Que <b>distância</b> ele percorre em <b>${t} s</b>?`,ans:d,unit:'m',wrong:[v+t,d/2,d*2],sol:`ΔS = v·t = ${v} × ${t} = <b>${d} m</b>`}},
+ ()=>{const [NA,NB,fA]=pick([[40,20,3],[20,40,6],[30,10,2],[10,30,6],[24,12,5],[12,24,8],[20,10,4],[10,20,10]]),fB=fA*NA/NB;
+  return{q:`Duas engrenagens se encaixam: A tem <b>${NA} dentes</b> e gira a <b>${fA} Hz</b>; B tem <b>${NB} dentes</b>. Qual é a <b>frequência de B</b>?`,ans:fB,unit:'Hz',wrong:[fA*NB/NA===fB?fB*2:fA*NB/NA,fA,fA+NA/NB],sol:`f<sub>A</sub>·N<sub>A</sub> = f<sub>B</sub>·N<sub>B</sub> ⇒ ${fA}·${NA} = f<sub>B</sub>·${NB} ⇒ f<sub>B</sub> = <b>${fmt(fB)} Hz</b>`}},
+ ()=>{const v1=pick([8,12,16,20,24]),k=pick([2,4]),v2=v1/k;return{q:`Duas rodas estão <b>no mesmo eixo</b>. A de raio maior tem <b>v = ${v1} cm/s</b>; a outra tem raio <b>${k} vezes menor</b>. Qual é a velocidade linear da menor?`,ans:v2,unit:'cm/s',wrong:[v1*k,v1,v1-k],sol:`Mesmo eixo ⇒ mesma ω. Como v = ω·R, o raio ${k}× menor dá v ${k}× menor: ${v1}/${k} = <b>${fmt(v2)} cm/s</b>`}},
+ ()=>{const [v,R]=pick([[4,2],[6,3],[6,4],[8,4],[10,5],[10,2],[6,2],[4,8],[8,16]]),ac=v*v/R;return{q:`Um corpo em MCU tem <b>v = ${v} m/s</b> e <b>raio R = ${R} m</b>. Qual é a <b>aceleração centrípeta</b>?`,ans:ac,unit:'m/s²',wrong:[v*R,v/R,v*v],sol:`ac = v²/R = ${v}²/${R} = ${v*v}/${R} = <b>${fmt(ac)} m/s²</b>`}},
+ ()=>{const R=pick([5,10,20]),T=pick([2,3,6]),v=6*R/T;return{q:`Um ponto percorre uma circunferência de <b>raio ${R} m</b> com <b>período ${T} s</b>. Qual é a <b>velocidade linear</b>? (π = 3)`,ans:v,unit:'m/s',wrong:[3*R/T,12*R/T,R*T],sol:`v = 2πR/T = 2·3·${R}/${T} = <b>${fmt(v)} m/s</b>`}}
+];
+const L2=[
+ ()=>{const R=pick([10,15,20,30]),v=R/10;return{q:`Uma <b>roda-gigante</b> de <b>${R} m de raio</b> dá uma volta completa em <b>1 minuto</b>. Qual é a <b>velocidade</b> de uma cadeira, em m/s? (π = 3)`,ans:v,unit:'m/s',wrong:[R,v*2,R/60],sol:`T = 60 s. v = 2πR/T = 2·3·${R}/60 = <b>${fmt(v)} m/s</b>`}},
+ ()=>{const f=pick([2,3,4,5]),v=3*f;return{q:`A roda de uma bicicleta tem <b>raio de 50 cm (0,5 m)</b> e gira com <b>frequência ${f} Hz</b>. Qual é a <b>velocidade da bicicleta</b>, em m/s? (π = 3)`,ans:v,unit:'m/s',wrong:[f*.5,v*2,v/2],sol:`v = 2π·f·R = 2·3·${f}·0,5 = <b>${fmt(v)} m/s</b>`}},
+ ()=>{const T=pick([3,6]),R2=pick([2,3,4,5]),v=6*R2/T;return{q:`Num <b>carrossel</b> com <b>período de ${T} s</b>, Ana senta a 1 m do centro e Bruno a <b>${R2} m</b>. Qual é a <b>velocidade linear de Bruno</b>, em m/s? (π = 3)`,ans:v,unit:'m/s',wrong:[6/T,v*2,R2*T],sol:`v = 2πR/T = 2·3·${R2}/${T} = <b>${fmt(v)} m/s</b>. Ana e Bruno têm a mesma ω, mas Bruno está mais longe do centro e por isso é mais rápido.`}},
+ ()=>{const L=pick([10,20,30]),v=L/10;return{q:`O <b>ponteiro dos segundos</b> de um relógio de parede mede <b>${L} cm</b>. Qual é a <b>velocidade da ponta</b> do ponteiro, em cm/s? (π = 3)`,ans:v,unit:'cm/s',wrong:[L,v*6,L/60],sol:`Uma volta em 60 s. v = 2πL/T = 2·3·${L}/60 = <b>${fmt(v)} cm/s</b>`}},
+ ()=>{const [NA,NB,fA]=pick([[48,16,1],[36,12,1],[48,12,1],[40,10,1],[30,10,2],[45,15,2],[36,18,2]]),f=fA*NA/NB;return{q:`Numa <b>bicicleta</b>, a coroa dos pedais tem <b>${NA} dentes</b> e a catraca da roda traseira tem <b>${NB} dentes</b>. Se o ciclista dá <b>${fA} volta${fA>1?'s':''} por segundo</b> nos pedais, quantas voltas por segundo dá a <b>roda traseira</b>?`,ans:f,unit:'voltas/s',wrong:[fA*NB/NA<=0?f*2:Math.max(fA*NB/NA,.1),fA,f+fA],sol:`A catraca gira junto com a roda traseira. f<sub>coroa</sub>·N<sub>coroa</sub> = f<sub>catraca</sub>·N<sub>catraca</sub> ⇒ ${fA}·${NA} = f·${NB} ⇒ f = <b>${fmt(f)} voltas/s</b>`}},
+ ()=>{const [v,R]=pick([[10,50],[20,100],[15,45],[12,36],[30,90],[20,50]]),ac=v*v/R;return{q:`Um <b>carro</b> faz uma curva circular de <b>raio ${R} m</b> com <b>velocidade ${v} m/s</b> (constante). Qual é a sua <b>aceleração centrípeta</b>, em m/s²?`,ans:ac,unit:'m/s²',wrong:[v/R,v*R,v*v],sol:`ac = v²/R = ${v}²/${R} = ${v*v}/${R} = <b>${fmt(ac)} m/s²</b>. Ela aponta para o centro da curva.`}},
+ ()=>{const [n,t]=pick([[120,60],[300,60],[90,30],[200,40]]),f=n/t;return{q:`Um <b>ventilador</b> dá <b>${n} voltas em ${t} s</b>. Qual é a sua <b>frequência</b>, em Hz?`,ans:f,unit:'Hz',wrong:[t/n,n*t,f*2],sol:`f = voltas/tempo = ${n}/${t} = <b>${fmt(f)} Hz</b> (período T = ${fmt(1/f)} s)`}},
+ ()=>{const R=pick([10,20,30]),n=pick([2,3,5]),d=6*R*n;return{q:`Um atleta corre em uma <b>pista circular de raio ${R} m</b>. Quantos <b>metros</b> ele percorre ao dar <b>${n} voltas</b> completas? (π = 3)`,ans:d,unit:'m',wrong:[3*R*n,d*2,R*n],sol:`Uma volta = 2πR = 2·3·${R} = ${6*R} m. Em ${n} voltas: ${6*R}·${n} = <b>${d} m</b>`}},
+ ()=>{const [R1,f1,R2]=pick([[20,6,10],[10,4,20],[30,2,10],[5,9,15],[40,3,10],[10,6,30]]),f2=f1*R1/R2;return{q:`Uma <b>correia</b> liga duas polias. A polia A tem <b>raio ${R1} cm</b> e gira a <b>${f1} Hz</b>; a polia B tem <b>raio ${R2} cm</b>. Qual é a <b>frequência da polia B</b>, em Hz?`,ans:f2,unit:'Hz',wrong:[f1*R2/R1===f2?f2*2:f1*R2/R1,f1,f1+R1/R2],sol:`Com correia, v<sub>A</sub> = v<sub>B</sub> ⇒ f<sub>A</sub>·R<sub>A</sub> = f<sub>B</sub>·R<sub>B</sub> ⇒ ${f1}·${R1} = f<sub>B</sub>·${R2} ⇒ f<sub>B</sub> = <b>${fmt(f2)} Hz</b>`}}
+];
+let level=1,lastG=-1,hit=0,tot=0,curQ=null;
+/* ---------- NÍVEL 3: estilo livro (a, b, c, figura, Solução e Respostas) ---------- */
+const bx=t=>`<span class="box">${t}</span>`,nf=(n,d=2)=>fmt(n,d),S3=l=>`<b>Solução:</b><br>${l.join('<br>')}`;
+const L3=[
+ ()=>{const [wA,RA,RB,Rr]=pick([[3,20,5,40],[2,15,5,30],[4,30,10,50],[5,24,8,40],[2,20,4,30],[3,18,6,50]]),wB=wA*RA/RB,v=wB*Rr/100;
+  return{fig:figBike(RA,RB,Rr),ctx:`Numa bicicleta com marchas, as pedaladas imprimem à <b>coroa</b>, de raio <b>${RA} cm</b>, uma velocidade angular de <b>${wA} rad/s</b>. A coroa está ligada por uma corrente a uma <b>catraca</b> da roda traseira, de raio <b>${RB} cm</b>. As rodas têm raio <b>${Rr} cm</b>. Determine:`,
+   parts:[{lab:'a)',q:'a velocidade angular da catraca;',ans:wB,unit:'rad/s',wrong:[wA*RB/RA,wA,wB*2]},{lab:'b)',q:'a velocidade escalar linear com que a bicicleta está se movendo.',ans:v,unit:'m/s',wrong:[wB*Rr,wA*Rr/100,v*2]}],
+   sol:S3([`a) A corrente liga a coroa à catraca: v<sub>A</sub> = v<sub>B</sub> ⇒ ω<sub>A</sub>R<sub>A</sub> = ω<sub>B</sub>R<sub>B</sub> ⇒ ω<sub>B</sub> = ω<sub>A</sub>R<sub>A</sub>/R<sub>B</sub> = ${wA}·${RA}/${RB} ⇒ ${bx('ω<sub>B</sub> = '+nf(wB)+' rad/s')}`,
+    `b) A catraca gira junto com a roda (mesma ω). Com R = ${Rr} cm = ${nf(Rr/100)} m: v = ω·R = ${nf(wB)}·${nf(Rr/100)} ⇒ ${bx('v = '+nf(v)+' m/s')}`])}},
+ ()=>{const [R1,R2,f2]=pick([[10,50,60],[10,40,120],[20,60,100],[15,45,90],[10,30,180]]),f1=f2*R2/R1,f2h=f2/60,v=6*(R2/100)*f2h;
+  return{fig:figBelt(R1,R2,'1','2'),ctx:`Uma correia funciona solidária com dois cilindros de raios <b>R<sub>1</sub> = ${R1} cm</b> e <b>R<sub>2</sub> = ${R2} cm</b>. O cilindro maior tem frequência de rotação <b>f<sub>2</sub> = ${f2} rpm</b>. (Use π = 3.)`,
+   parts:[{lab:'a)',q:'Qual é a frequência de rotação f<sub>1</sub> do cilindro menor?',ans:f1,unit:'rpm',wrong:[f2*R1/R2,f2,f1/60]},{lab:'b)',q:'Qual é a velocidade linear da correia?',ans:v,unit:'m/s',wrong:[v*100,v*2,v/2]}],
+   sol:S3([`a) Mesma correia: v<sub>1</sub> = v<sub>2</sub> ⇒ f<sub>1</sub>R<sub>1</sub> = f<sub>2</sub>R<sub>2</sub> ⇒ f<sub>1</sub> = ${f2}·${R2}/${R1} ⇒ ${bx('f<sub>1</sub> = '+nf(f1)+' rpm')}`,
+    `b) f<sub>2</sub> = ${f2} rpm = ${nf(f2h)} Hz e R<sub>2</sub> = ${nf(R2/100)} m. A velocidade da correia é a da borda: v = 2π·R<sub>2</sub>·f<sub>2</sub> = 2·3·${nf(R2/100)}·${nf(f2h)} ⇒ ${bx('v = '+nf(v)+' m/s')}`])}},
+ ()=>{const [dA,dB,TA]=pick([[.5,1,10],[2,4,5],[1,4,5],[2,8,5],[1,2,10]]),RB=dB/2,TB=TA*dB/dA,fB=1/TB,wB=6/TB,v=wB*RB;
+  return{ctx:`Num relógio, a transmissão do movimento é feita por contato. Uma engrenagem de <b>${nf(dA)} cm de diâmetro</b> tem <b>período de ${TA} s</b> e está em contato com outra engrenagem de <b>${nf(dB)} cm de diâmetro</b>. Determine, para a segunda engrenagem (π = 3):`,
+   parts:[{lab:'a)',q:'o período;',ans:TB,unit:'s',wrong:[TA*dA/dB,TA,TB*2]},{lab:'b)',q:'a frequência;',ans:fB,unit:'Hz',wrong:[1/TA,fB*2,TB]},{lab:'c)',q:'a velocidade angular;',ans:wB,unit:'rad/s',wrong:[6/TA,wB*2,wB/2]},{lab:'d)',q:'a velocidade linear de um ponto periférico.',ans:v,unit:'cm/s',wrong:[wB*dB,v*2,v/2]}],
+   sol:S3([`a) Em contato: f<sub>A</sub>R<sub>A</sub> = f<sub>B</sub>R<sub>B</sub> ⇒ T<sub>B</sub> = T<sub>A</sub>·R<sub>B</sub>/R<sub>A</sub> = ${TA}·${nf(dB)}/${nf(dA)} ⇒ ${bx('T<sub>B</sub> = '+nf(TB)+' s')}`,
+    `b) f<sub>B</sub> = 1/T<sub>B</sub> = 1/${nf(TB)} ⇒ ${bx('f<sub>B</sub> = '+nf(fB)+' Hz')}`,`c) ω<sub>B</sub> = 2π/T<sub>B</sub> = 2·3/${nf(TB)} ⇒ ${bx('ω<sub>B</sub> = '+nf(wB)+' rad/s')}`,
+    `d) R<sub>B</sub> = ${nf(dB)}/2 = ${nf(RB)} cm. v = ω<sub>B</sub>·R<sub>B</sub> = ${nf(wB)}·${nf(RB)} ⇒ ${bx('v = '+nf(v)+' cm/s')}`])}},
+ ()=>{const [wA,k,m]=pick([[30,2,1.5],[24,3,2],[60,2,1.5],[36,2,1.5],[30,3,1.5]]),wB=wA/k,wC=wA/m,ok='B e C giram no sentido horário (oposto ao de A)';
+  return{fig:figGears3(k,m),ctx:`A engrenagem A, acionada por um motor, gira no sentido <b>anti-horário</b> com velocidade angular <b>ω<sub>A</sub> = ${wA} rad/s</b>. As engrenagens B e C estão em contato com A. Sabendo que <b>R<sub>B</sub> = ${k}R<sub>A</sub></b> e <b>R<sub>C</sub> = ${nf(m)}R<sub>A</sub></b>, determine:`,
+   parts:[{lab:'a)',q:'os sentidos de rotação das engrenagens B e C;',choices:[ok,'B horário e C anti-horário','B anti-horário e C horário','B e C giram no mesmo sentido de A'],correct:0},{lab:'b)',q:'a velocidade angular da engrenagem B;',ans:wB,unit:'rad/s',wrong:[wA*k,wA,wB*2]},{lab:'c)',q:'a velocidade angular da engrenagem C.',ans:wC,unit:'rad/s',wrong:[wA*m,wA,wC*2]}],
+   sol:S3([`a) Engrenagens em contato giram em sentidos opostos. Como A é anti-horária, ${bx(ok)}.`,`b) v<sub>A</sub> = v<sub>B</sub> ⇒ ω<sub>A</sub>R<sub>A</sub> = ω<sub>B</sub>R<sub>B</sub> ⇒ ω<sub>B</sub> = ω<sub>A</sub>R<sub>A</sub>/(${k}R<sub>A</sub>) = ${wA}/${k} ⇒ ${bx('ω<sub>B</sub> = '+nf(wB)+' rad/s')}`,`c) ω<sub>C</sub> = ω<sub>A</sub>R<sub>A</sub>/(${nf(m)}R<sub>A</sub>) = ${wA}/${nf(m)} ⇒ ${bx('ω<sub>C</sub> = '+nf(wC)+' rad/s')}`])}},
+ ()=>{const [fA,RA,RB,RC]=pick([[75,10,15,8],[90,10,15,6],[120,10,20,10],[60,20,30,12],[100,12,20,9]]),fB=fA*RA/RB,fC=fB,v=6*(fC/60)*RC/100;
+  return{fig:figMotor(RA,RB,RC),ctx:`No mecanismo esquematizado, o motor aciona a engrenagem A com frequência <b>f<sub>A</sub> = ${fA} rpm</b>. As engrenagens B e C estão ligadas a um <b>mesmo eixo</b>. Sendo <b>R<sub>A</sub> = ${RA} cm</b>, <b>R<sub>B</sub> = ${RB} cm</b> e <b>R<sub>C</sub> = ${RC} cm</b> (π = 3), determine:`,
+   parts:[{lab:'a)',q:'a frequência de rotação da engrenagem B;',ans:fB,unit:'rpm',wrong:[fA*RB/RA,fA,fB*2]},{lab:'b)',q:'a frequência de rotação da engrenagem C;',ans:fC,unit:'rpm',wrong:[fA,fC*RB/RC,fC*RC/RB]},{lab:'c)',q:'a velocidade linear de um ponto P da periferia de C.',ans:v,unit:'m/s',wrong:[v*100,v*2,v/2]}],
+   sol:S3([`a) A e B em contato: f<sub>A</sub>R<sub>A</sub> = f<sub>B</sub>R<sub>B</sub> ⇒ f<sub>B</sub> = ${fA}·${RA}/${RB} ⇒ ${bx('f<sub>B</sub> = '+nf(fB)+' rpm')}`,`b) B e C estão no mesmo eixo, logo têm a mesma frequência: ${bx('f<sub>C</sub> = '+nf(fC)+' rpm')}`,
+    `c) f<sub>C</sub> = ${nf(fC)}/60 = ${nf(fC/60)} Hz e R<sub>C</sub> = ${nf(RC/100)} m. v = 2π·f·R<sub>C</sub> = 2·3·${nf(fC/60)}·${nf(RC/100)} ⇒ ${bx('v = '+nf(v)+' m/s')}`])}},
+ ()=>{const [v,Rr,Rc,Rcor]=pick([[10,40,5,10],[9,30,5,10],[12,40,6,12],[8,40,6,12],[10,50,4,8]]),w=v/(Rr/100),wc=w*Rc/Rcor;
+  return{fig:figBike(Rcor,Rc,Rr),ctx:`Uma bicicleta, cuja roda tem raio de <b>${Rr} cm</b>, desloca-se em linha reta com velocidade escalar constante de <b>${v} m/s</b>.`,
+   parts:[{lab:'a)',q:'Qual é a velocidade angular da catraca ligada à roda traseira?',ans:w,unit:'rad/s',wrong:[v*Rr/100,v*Rr,w*2]},{lab:'b)',q:`Sabendo que os raios da catraca e da coroa são, respectivamente, ${Rc} cm e ${Rcor} cm, determine a velocidade angular que o ciclista imprime à coroa.`,ans:wc,unit:'rad/s',wrong:[w*Rcor/Rc,w,wc*2]}],
+   sol:S3([`a) A catraca gira junto com a roda (mesma ω). Com R = ${nf(Rr/100)} m: v = ω·R ⇒ ω = v/R = ${v}/${nf(Rr/100)} ⇒ ${bx('ω = '+nf(w)+' rad/s')}`,`b) Corrente: ω<sub>coroa</sub>·R<sub>coroa</sub> = ω<sub>catraca</sub>·R<sub>catraca</sub> ⇒ ω<sub>coroa</sub> = ${nf(w)}·${Rc}/${Rcor} ⇒ ${bx('ω<sub>coroa</sub> = '+nf(wc)+' rad/s')}`])}},
+ ()=>{const rpm=pick([600,1200,1500,2400,3000]),f=rpm/60,T=1/f;
+  return{ctx:`Uma polia está ligada a um motor que efetua <b>${fmt(rpm,0)} rpm</b>. Determine:`,parts:[{lab:'a)',q:'a frequência dessa polia, em hertz;',ans:f,unit:'Hz',wrong:[rpm,rpm*60,f/60]},{lab:'b)',q:'o seu período.',ans:T,unit:'s',dec:3,wrong:[f,1/rpm,T*2]}],
+   sol:S3([`a) ${fmt(rpm,0)} rpm = ${fmt(rpm,0)} ciclos em 60 s ⇒ f = ${fmt(rpm,0)}/60 ⇒ ${bx('f = '+nf(f)+' Hz')}`,`b) T = 1/f = 1/${nf(f)} ⇒ ${bx('T = '+nf(T,3)+' s')}`])}},
+ ()=>{const [r1,f1,f2]=pick([[10,2400,600],[5,1800,600],[8,1200,400],[10,3000,500],[6,900,300]]),r2=r1*f1/f2,ok='f₁·R₁ = f₂·R₂ (frequência inversamente proporcional ao raio)';
+  return{fig:figBelt(r1,r2,'1','2'),ctx:`Um sistema muito usado em mecânica para ajustar a frequência de rotação de motores usa duas polias de raios R<sub>1</sub> e R<sub>2</sub> que giram acopladas por uma correia que não desliza.`,
+   parts:[{lab:'a)',q:'Qual é a relação entre as frequências de rotação das polias e os seus raios?',choices:[ok,'f₁/R₁ = f₂/R₂ (diretamente proporcionais)','f₁ = f₂ (sempre iguais)','f₁ + R₁ = f₂ + R₂'],correct:0},{lab:'b)',q:`Se a polia menor tem raio R₁ = ${r1} cm e frequência f₁ = ${f1} rpm, qual deve ser o raio R₂ da polia maior para que ela gire com f₂ = ${f2} rpm?`,ans:r2,unit:'cm',wrong:[r1*f2/f1,r1,r2/2]}],
+   sol:S3([`a) Correia sem deslizar: v<sub>1</sub> = v<sub>2</sub> ⇒ 2πf<sub>1</sub>R<sub>1</sub> = 2πf<sub>2</sub>R<sub>2</sub> ⇒ ${bx('f<sub>1</sub>R<sub>1</sub> = f<sub>2</sub>R<sub>2</sub>')}`,`b) R<sub>2</sub> = f<sub>1</sub>R<sub>1</sub>/f<sub>2</sub> = ${f1}·${r1}/${f2} ⇒ ${bx('R<sub>2</sub> = '+nf(r2)+' cm')}`])}},
+ ()=>{const r=pick([40000,42000,44000]),w=6/24,v=w*r;
+  return{ctx:`Para ficar parado em relação a um observador na Terra, um <b>satélite geoestacionário</b> precisa ter a mesma velocidade angular da Terra, ou seja, <b>período de 24 h</b>. Considere um satélite assim em órbita circular de <b>raio ${fmt(r,0)} km</b> (π = 3).`,
+   parts:[{lab:'a)',q:'Qual é a velocidade angular do satélite, em rad/h?',ans:w,unit:'rad/h',wrong:[144,w*2,6*24/r]},{lab:'b)',q:'Qual é a velocidade linear do satélite, em km/h?',ans:v,unit:'km/h',dec:0,wrong:[r/24,r*6,v*2]}],
+   sol:S3([`a) ω = 2π/T = 2·3/24 ⇒ ${bx('ω = '+nf(w)+' rad/h')}`,`b) v = ω·R = ${nf(w)}·${fmt(r,0)} ⇒ ${bx('v = '+fmt(v,0)+' km/h')}`])}}
+];
+function setLevel(n){level=n;[1,2,3].forEach(i=>$('lv'+i).classList.toggle('on',i==n));lastG=-1;novaQ()}
+function mkOpts(p){const dec=p.dec===undefined?2:p.dec,f=n=>fmt(n,dec);
+ if(p.choices)return shuffle(p.choices.map((c,i)=>({t:c,ok:i===p.correct})));
+ const seen=new Set([f(p.ans)]),o=[{t:f(p.ans)+' '+p.unit,ok:true}];
+ for(const w of [...(p.wrong||[]),p.ans*2,p.ans/2,p.ans+1,p.ans*3,p.ans+2,p.ans*4,p.ans+5]){if(o.length>=4)break;if(!(w>0)||seen.has(f(w)))continue;seen.add(f(w));o.push({t:f(w)+' '+p.unit,ok:false})}
+ return shuffle(o)}
+function novaQ(){
+ const G=level==1?L1:level==2?L2:L3;let i;do{i=Math.floor(Math.random()*G.length)}while(i===lastG&&G.length>1);lastG=i;
+ const q=G[i](),parts=q.parts||[q];
+ curQ={parts:parts.map(p=>({o:mkOpts(p),done:false,lab:p.lab}))};
+ $('exQ').innerHTML=`<span class="tag">Nível ${level}</span>`+(q.parts?q.ctx:q.q)+(q.fig?`<div class="exfig">${q.fig}</div>`:'');
+ $('exO').innerHTML=curQ.parts.map((p,pi)=>(q.parts?`<div class="pq"><b>${p.lab}</b> ${parts[pi].q}</div>`:'')+`<div class="opts">${p.o.map((x,k)=>`<button class="opt" onclick="resp(${pi},${k})">${'ABCD'[k]}) ${x.t}</button>`).join('')}</div>`).join('');
+ $('exS').style.display='none';
+ $('exS').innerHTML=q.parts?q.sol+'<br><b>Respostas:</b> '+curQ.parts.map(p=>p.lab+' '+p.o.find(x=>x.ok).t).join('; '):'<b>Resolução:</b><br>'+q.sol;updScore()}
+function resp(pi,k){const p=curQ.parts[pi];if(p.done)return;p.done=true;tot++;if(p.o[k].ok)hit++;
+ document.querySelectorAll('#exO .opts')[pi].querySelectorAll('.opt').forEach((b,j)=>{b.disabled=true;if(p.o[j].ok)b.classList.add('ok');else if(j===k)b.classList.add('bad')});
+ if(curQ.parts.every(x=>x.done))showSol();updScore()}
+function showSol(){$('exS').style.display='block'}
+function updScore(){$('exScore').textContent=tot?`Acertos: ${hit} de ${tot}`:'Escolha uma alternativa.'}
+
+/* ---------- TELA CHEIA ---------- */
+function goFS(btn){
+ const w=btn.closest('.wrap');
+ if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}
+ else{(w.requestFullscreen||w.webkitRequestFullscreen).call(w)}
+}
+function onFS(){
+ const fe=document.fullscreenElement||document.webkitFullscreenElement;
+ document.querySelectorAll('.wrap').forEach(w=>w.classList.toggle('isfs',w===fe));
+ document.querySelectorAll('.fs').forEach(b=>b.textContent=fe?'✕ Sair da tela cheia':'⛶ Tela cheia');
+}
+document.addEventListener('fullscreenchange',onFS);document.addEventListener('webkitfullscreenchange',onFS);
+
+/* ---------- FIGURAS (SVG) ---------- */
+const r1d=n=>Math.round(n*10)/10;
+const eS=(w,h,s)=>`<svg class="fig" viewBox="0 0 ${w} ${h}" role="img">${s}</svg>`;
+const eT=(x,y,t,c='',a='middle')=>`<text x="${r1d(x)}" y="${r1d(y)}" text-anchor="${a}" class="${c}">${t}</text>`;
+const eL=(x1,y1,x2,y2,c='ink',m='')=>`<line x1="${r1d(x1)}" y1="${r1d(y1)}" x2="${r1d(x2)}" y2="${r1d(y2)}" class="${c}"${m?` marker-end="url(#${m})"`:''}/>`;
+const eC=(x,y,r,c='ink')=>`<circle cx="${r1d(x)}" cy="${r1d(y)}" r="${r1d(r)}" class="${c}"/>`;
+const eD=(x,y,r=3.5,c='d-ink')=>eC(x,y,r,c);
+const eA=(cx,cy,r,a0,a1,c='ink',m='')=>{const p0=[cx+r*Math.cos(a0*D2R),cy-r*Math.sin(a0*D2R)],p1=[cx+r*Math.cos(a1*D2R),cy-r*Math.sin(a1*D2R)];
+ return `<path d="M${r1d(p0[0])},${r1d(p0[1])} A${r},${r} 0 ${Math.abs(a1-a0)>180?1:0} ${a1>a0?0:1} ${r1d(p1[0])},${r1d(p1[1])}" class="${c}"${m?` marker-end="url(#${m})"`:''}/>`};
+const sbt=(t,s)=>`${t}<tspan class="sbt" dy="4">${s}</tspan>`;
+
+function figRad(){const cx=110,cy=118,r=88,a=57.2958,p=[cx+r*Math.cos(a*D2R),cy-r*Math.sin(a*D2R)],m=a/2*D2R;
+ return eS(300,240,eC(cx,cy,r,'mutc')+eL(cx,cy,cx+r,cy)+eL(cx,cy,p[0],p[1])+eA(cx,cy,r,0,a,'redarc')+eA(cx,cy,30,0,a,'ink','mI')
+  +eD(cx,cy)+eD(cx+r,cy,4.5,'d-bad')+eD(p[0],p[1],4.5,'d-bad')
+  +eT(cx+r/2,cy+19,'R','i')+eT(cx+(p[0]-cx)/2-14,cy+(p[1]-cy)/2,'R','i')
+  +eT(cx+(r+10)*Math.cos(m)+4,cy-(r+10)*Math.sin(m),'s = R','tbad','start')
+  +eT(cx+46*Math.cos(m),cy-46*Math.sin(m)+4,'φ','i tpri')
+  +eT(150,230,'arco igual ao raio ⇒ φ = 1 rad ≈ 57,3°','tmut'))}
+function figBelt(r1,r2,la='A',lb='B'){const mx=Math.max(r1,r2),rL=Math.max(14,58*r1/mx),rR=Math.max(14,58*r2/mx),y=100,x1=rL+22,x2=x1+rL+rR+70,d=x2-x1,b=Math.acos((rL-rR)/d);
+ const t=(x,r,s)=>[x+r*Math.cos(b),y+s*r*Math.sin(b)];const a1=t(x1,rL,-1),a2=t(x2,rR,-1),b1=t(x1,rL,1),b2=t(x2,rR,1);
+ const W=x2+rR+22;
+ return eS(W,200,`<path d="M${r1d(a1[0])},${r1d(a1[1])} L${r1d(a2[0])},${r1d(a2[1])} M${r1d(b1[0])},${r1d(b1[1])} L${r1d(b2[0])},${r1d(b2[1])}" class="beltl"/>`
+  +eC(x1,y,rL,'g1')+eC(x2,y,rR,'g2')+eD(x1,y,3,'d-c1')+eD(x2,y,3,'d-c2')
+  +eA(x1,y,rL*.42,140,-170,'c1l','m1')+eA(x2,y,rR*.42,140,-170,'c2l','m2')
+  +eL(x1,y,x1,y+rL,'c1l')+eL(x2,y,x2,y+rR,'c2l')+eD(x1,y+rL,4.5,'d-c1')+eD(x2,y+rR,4.5,'d-c2')
+  +eT(x1-12,y+rL/2+4,sbt('R',la),'tc1','end')+eT(x2+12,y+rR/2+4,sbt('R',lb),'tc2','start')
+  +eT(x1,y+rL+22,la,'tc1')+eT(x2,y+rR+22,lb,'tc2')+eT(x1,22,sbt('ω',la),'tc1')+eT(x2,22,sbt('ω',lb),'tc2'))}
+/* ---------- ENGRENAGENS COM DENTES (SVG) ---------- */
+const gearPath=(x,y,r,N,ph,h)=>{let d='';const p=TAU/N;for(let k=0;k<N;k++){const c=ph+k*p;
+ [[-.5,-h],[-.2,h],[.2,h],[.5,-h]].forEach((q,j)=>{const a=c+q[0]*p,rr=r+q[1];d+=(k==0&&j==0?'M':'L')+r1d(x+rr*Math.cos(a))+','+r1d(y-rr*Math.sin(a))})}return d+'Z'};
+const eG=(x,y,r,k,ph=0)=>{const N=Math.max(8,2*Math.round(r*.16)),h=Math.max(3,Math.min(6,r*.1));
+ let s=`<path d="${gearPath(x,y,r,N,ph,h)}" class="g${k}"/>`+eC(x,y,r*.68,'gin'+k);
+ if(r>=44)for(let i=0;i<5;i++){const a=i*TAU/5+Math.PI/2;s+=eC(x+r*.4*Math.cos(a),y-r*.4*Math.sin(a),r*.12,'ghole')}
+ return s+eC(x,y,Math.max(3,r*.14),'ghub'+k)};
+
+function figGrau(){const cx=150,cy=118,r=88,P=(a,k=r)=>[cx+k*Math.cos(a*D2R),cy-k*Math.sin(a*D2R)];
+ let ticks='';for(let a=0;a<360;a+=10){const p0=P(a,r),p1=P(a,r+7);ticks+=eL(p0[0],p0[1],p1[0],p1[1],'ink')}
+ const a0=P(0),a1=P(9);
+ return eS(300,240,eC(cx,cy,r,'mutc')+ticks
+  +`<path d="M${cx},${cy} L${r1d(a0[0])},${r1d(a0[1])} A${r},${r} 0 0 0 ${r1d(a1[0])},${r1d(a1[1])} Z" class="slice"/>`
+  +eA(cx,cy,r,0,9,'redarc')+eL(cx,cy,a0[0],a0[1])+eL(cx,cy,a1[0],a1[1])+eD(cx,cy)
+  +eT(cx+r+14,cy+26,'φ = 1°','i tbad','end')+eT(cx-6,cy+34,'a circunferência é dividida','tmut','middle')+eT(cx-6,cy+50,'em 360 partes iguais','tmut','middle')
+  +eT(150,230,'1 parte = 1/360 da circunferência (sem proporção)','tmut'))}
+
+function figContact(){const rA=58,rB=40,xA=105,xB=105+rA+rB,y=95,pB=Math.PI/Math.max(8,2*Math.round(rB*.16));
+ return eS(330,200,eG(xA,y,rA,1,0)+eG(xB,y,rB,2,pB)
+  +eA(xA,y,22,40,320,'c1l','m1')+eA(xB,y,15,140,-170,'c2l','m2')
+  +eL(xA,y,xA,y+rA,'c1l')+eL(xB,y,xB,y+rB,'c2l')+eD(xA,y+rA,4.5,'d-c1')+eD(xB,y+rB,4.5,'d-c2')
+  +eT(xA-14,y+rA/2+4,sbt('R','A'),'tc1','end')+eT(xB+14,y+rB/2+4,sbt('R','B'),'tc2','start')
+  +eT(xA,y+rA+22,'A','tc1')+eT(xB,y+rB+22,'B','tc2')
+  +eT(xA,22,sbt('ω','A'),'tc1')+eT(xB,40,sbt('ω','B'),'tc2'))}
+
+function figCoax(){const cx=100,cy=105,rs=[78,52,28],a=38*D2R,col=['g1','g2','g3'];
+ let s='';rs.forEach((r,i)=>{s+=eC(cx,cy,r,col[i])});
+ const pos=rs.map(r=>[cx+r*Math.cos(a),cy-r*Math.sin(a)]);
+ s+=eL(cx,cy,pos[0][0],pos[0][1],'ink');
+ s+=eD(cx,cy,4,'d-ink');
+ pos.forEach((p,i)=>{s+=eD(p[0],p[1],5.5,'d-bad')+eT(p[0]+10,p[1]+(i==0?-8:18),'P'+['₁','₂','₃'][i],'tbad','start')});
+ s+=eA(cx,cy,rs[0]+12,115,215,'ink','mI')+eT(cx-rs[0]-26,cy-4,'ω','i tpri','end');
+ s+=eT(210,70,'mesma ω','tpri','start')+eT(210,92,'mesma f','tpri','start')+eT(210,126,'v₁ > v₂ > v₃','tbad','start')+eT(210,148,'(v = ω·R)','tmut','start')+eT(cx,206,'vista de cima','tmut');
+ return eS(340,216,s)}
+
+function figBike(RA,RB,Rr,la='A',lb='B'){const s=1.6,rA=Math.max(16,RA*s),rB=Math.max(9,RB*s),rW=Math.max(44,Rr*s),y=104,xa=rA+36,xb=xa+rA+rW+50,d=xb-xa,b=Math.acos(Math.min(.99,(rA-rB)/d));
+ let sp='';for(let k=0;k<12;k++){const t=k*Math.PI/6;sp+=eL(xb,y,xb+rW*Math.cos(t),y+rW*Math.sin(t),'spk')}
+ const t=(x,r,q)=>[x+r*Math.cos(b),y+q*r*Math.sin(b)],a1=t(xa,rA,-1),a2=t(xb,rB,-1),b1=t(xa,rA,1),b2=t(xb,rB,1);
+ const chain=`M${r1d(a1[0])},${r1d(a1[1])} L${r1d(a2[0])},${r1d(a2[1])} M${r1d(b1[0])},${r1d(b1[1])} L${r1d(b2[0])},${r1d(b2[1])}`;
+ const ca=Math.PI*0.28,cx2=xa+(rA+16)*Math.cos(ca),cy2=y+(rA+16)*Math.sin(ca);
+ return eS(xb+rW+26,212,eC(xb,y,rW+5,'tire')+eC(xb,y,rW-4,'rim')+sp+`<path d="${chain}" class="chain"/>`
+  +eG(xb,y,rB,2,0)+eG(xa,y,rA,1,0)+eD(xa,y,3.5,'d-c1')+eD(xb,y,3.5,'d-c2')
+  +eL(xa,y,cx2,cy2,'crank')+`<rect x="${r1d(cx2-11)}" y="${r1d(cy2-4)}" width="22" height="8" rx="3" class="pedal"/>`
+  +eA(xa,y,rA*.3,140,-170,'c1l','m1')
+  +eL(xa,y,xa,y-rA,'c1l')+eT(xa-8,y-rA/2,sbt('R',la),'tc1','end')
+  +eL(xb,y,xb+(rW-4)*.7,y-(rW-4)*.7,'c2l')+eT(xb+rW*.35+10,y-rW*.35-6,'R','tc2','start')
+  +eT(xa,y+rA+30,'coroa '+la,'tc1')+eT(xb,y+rW+30,'catraca '+lb+' e roda','tc2')+eT(xb,y-rB-9,sbt('R',lb),'tc2'))}
+
+function figGears3(k,m){const u=Math.min(34,320/(2*(k+1+m))),mx=Math.max(k,1,m),y=u*mx+16,xB=12+u*k,xA=xB+u*(k+1),xC=xA+u*(1+m),pB=Math.PI/Math.max(8,2*Math.round(u*k*.16)),pC=Math.PI/Math.max(8,2*Math.round(u*m*.16));
+ return eS(Math.ceil(xC+u*m+14),Math.ceil(2*u*mx+32),eG(xB,y,u*k,2,pB)+eG(xA,y,u,1,0)+eG(xC,y,u*m,3,pC)
+  +eA(xA,y,u*.45,40,320,'c1l','m1')
+  +eT(xB,y+u*k*.6+16,'B','tc2')+eT(xA,y-u-12,'A','tc1')+eT(xC,y+u*m*.6+16,'C')
+  +eT(xA,y+u*.9+16,sbt('ω','A'),'tc1')+eL(xB,y,xB-u*k*.7,y+u*k*.7,'c2l')+eL(xC,y,xC+u*m*.7,y-u*m*.7,'ink')
+  +eT(xB-u*k*.3-4,y+u*k*.5+14,sbt('R','B'),'tc2','end')+eT(xC+u*m*.4+4,y-u*m*.4-4,sbt('R','C'),'','start'))}
+
+function figMotor(RA,RB,RC){const s=3.2,rA=RA*s,rB=RB*s,rC=RC*s,ax=96,ay=62,d=rA+rB,ang=50*D2R,bx=ax+d*Math.cos(ang),by=ay+d*Math.sin(ang),NB=Math.max(8,2*Math.round(rB*.16));
+ return eS(330,Math.ceil(by+rB+20),`<rect x="8" y="${ay-18}" width="40" height="36" rx="5" class="g3"/>`+eL(48,ay,ax,ay,'ink')+eT(28,ay+4,'Motor','','middle')
+  +eG(bx,by,rB,2,(Math.PI-ang)+Math.PI/NB)+eG(ax,ay,rA,1,-ang)+eC(bx,by,rC,'g3')+eD(bx,by,3)
+  +eA(ax,ay,rA*.4,40,320,'c1l','m1')+eT(ax,ay-rA-12,'A','tc1')+eT(bx-rB*.62,by+rB*.55,'B','tc2')+eT(bx,by+rC*.45+4,'C','')
+  +eD(bx+rC,by,5,'d-bad')+eT(bx+rC+10,by+4,'P','tbad','start')+eT(bx+rB+14,by-rB*.2,'B e C no mesmo eixo','tmut','start'))}
+
+/* ---------- FIGURAS QUE APARECEM AOS POUCOS ---------- */
+const GR={step:0,a:28,done:false};
+function grRender(){
+ const cx=100,cy=185,r=105,P=a=>[cx+r*Math.cos(a*D2R),cy-r*Math.sin(a*D2R)],Q=(a,k)=>[cx+k*Math.cos(a*D2R),cy-k*Math.sin(a*D2R)];
+ const st=GR.step,a=GR.a,p1=P(28),pm=P(a);
+ let s=eC(cx,cy,r,'mutc')+eL(cx,cy,cx+r+34,cy,'ink','mI')+eD(cx,cy)+eT(cx-8,cy+17,'C','i')+eT(cx+r+12,cy+16,'O','i');
+ if(st>=1){const l1=Q(14,28);s+=eL(cx,cy,p1[0],p1[1],'mutc')+eA(cx,cy,40,0,28,'ink','mI')+eT(l1[0],l1[1]+4,'φ₁','i')+eD(p1[0],p1[1],5,'d-bad')+eT(p1[0]+9,p1[1]+4,'P₁(t₁)','','start')}
+ if(st>=2){
+  if(a>28.5)s+=eA(cx,cy,r,28,a,'redarc');
+  if(GR.done){const l2=Q(55,49),ls=Q(44,124);s+=eL(cx,cy,pm[0],pm[1],'mutc')+eA(cx,cy,58,0,78,'ink','mI')+eT(l2[0],l2[1]+4,'φ₂','i')+eT(ls[0],ls[1],'Δs','i tbad')+eD(pm[0],pm[1],5,'d-bad')+eT(pm[0]+9,pm[1]-5,'P₂(t₂)','','start')}
+  else s+=eL(cx,cy,pm[0],pm[1],'mutc')+eD(pm[0],pm[1],7,'d-pri')}
+ if(st>=3){const ld=Q(53,92);s+=eA(cx,cy,80,28,78,'priarc','mP')+eT(ld[0],ld[1]+4,'Δφ','i tpri')}
+ $('fgGrand').innerHTML=eS(300,230,s)}
+const GRI=['Clique em <b>Mostrar ▶</b> para construir a figura passo a passo. Por enquanto: o centro <b>C</b> e a reta de referência <b>CO</b>.',
+ 'No instante <b>t₁</b> o ponto está em <b>P₁</b>, com posição angular <b>φ₁</b> (medida a partir da reta CO).',
+ 'Em <b>t₂</b> o ponto chegou a <b>P₂</b>, com posição angular <b>φ₂</b>, e percorreu o arco <b>Δs</b> (em vermelho).',
+ 'A variação do espaço angular é <b>Δφ = φ₂ − φ₁</b> e a velocidade angular média é <b>ω = Δφ/Δt</b>, com Δt = t₂ − t₁.'];
+function grInfo(){$('grInfo').innerHTML=GRI[GR.step];$('grNext').disabled=GR.step>=3;$('grPrev').disabled=GR.step<=0}
+function grStep(d){const n=Math.max(0,Math.min(3,GR.step+d));if(n===GR.step)return;
+ if(n===2&&GR.step<2){GR.a=28;GR.done=false}
+ if(n<2){GR.a=28;GR.done=false}
+ if(n===3){GR.a=78;GR.done=true}
+ GR.step=n;grRender();grInfo()}
+function grReset(){GR.step=0;GR.a=28;GR.done=false;grRender();grInfo()}
+
+const VL={step:0,th:0,target:0,anim:false};
+function velRender(){
+ const cx=130,cy=112,r=68,L=56,pt=th=>[cx+r*Math.sin(th*D2R),cy-r*Math.cos(th*D2R)],dr=th=>[Math.cos(th*D2R),Math.sin(th*D2R)];
+ const anchor=dx=>dx>.3?'start':dx<-.3?'end':'middle';
+ let s=eC(cx,cy,r,'mutc')+eD(cx,cy,3);
+ const full=VL.anim?VL.step-1:Math.min(VL.step,3);
+ for(let k=0;k<=full;k++){const th=k*90,[x,y]=pt(th),[dx,dy]=dr(th),lab=(k+1);
+  s+=eL(x,y,x+dx*L,y+dy*L,'redl','mR')+eD(x,y,5,'d-bad')+eT(x+(x-cx)/r*16,y+(y-cy)/r*16+5,String(lab))+eT(x+dx*(L+12),y+dy*(L+12)+(Math.abs(dy)>.5?(dy>0?14:-6):4),'v'+SB[lab],'tbad',anchor(dx))}
+ if(VL.anim){const th=VL.th,[x,y]=pt(th),[dx,dy]=dr(th);s+=eL(x,y,x+dx*L,y+dy*L,'redl','mR')+eD(x,y,5,'d-bad')}
+ if(VL.step>=4){const ox=350,oy=118,l=46;s+=eT(ox,30,'mesma origem','tmut');
+  [0,90,180,270].forEach((th,k)=>{const [dx,dy]=dr(th);s+=eL(ox,oy,ox+dx*l,oy+dy*l,'redl','mR')+eT(ox+dx*(l+12),oy+dy*(l+12)+(Math.abs(dy)>.5?(dy>0?14:-6):4),'v'+SB[k+1],'tbad',anchor(dx))});
+  s+=eD(ox,oy,3.5)+eT(ox,212,'mesmo módulo, direções diferentes','tmut')}
+ $('fgVel').innerHTML=eS(460,222,s)}
+const VLI=['Ponto <b>1</b>: o vetor velocidade <b>v₁</b> é tangente à circunferência (aqui, horizontal para a direita).',
+ 'Indo para o ponto <b>2</b>, o vetor acompanha a partícula e fica vertical, para baixo (<b>v₂</b>). O <b>v₁</b> continua no ponto 1.',
+ 'Do ponto 2 ao <b>3</b>: surge <b>v₃</b>, horizontal para a esquerda. Ficam v₁, v₂ e v₃.',
+ 'Do ponto 3 ao <b>4</b>: surge <b>v₄</b>, vertical para cima. Estão os quatro vetores.',
+ 'Os quatro vetores têm o <b>mesmo tamanho (módulo)</b>, mas <b>direção e sentido diferentes</b>: v₁ ≠ v₂ ≠ v₃ ≠ v₄. Por isso, mesmo com módulo constante, existe aceleração (a centrípeta).'];
+function velInfo(){$('velInfo').innerHTML=VLI[VL.step];$('velNext').disabled=VL.step>=4;$('velPrev').disabled=VL.step<=0}
+function velStep(d){const n=Math.max(0,Math.min(4,VL.step+d));if(n===VL.step)return;VL.step=n;
+ if(d>0&&n<=3){VL.target=n*90;VL.th=(n-1)*90;VL.anim=true}else VL.anim=false;
+ velRender();velInfo()}
+function velReset(){VL.step=0;VL.anim=false;velRender();velInfo()}
+function tickFigs(dt){
+ if(GR.step===2&&!GR.done){GR.a+=45*dt;if(GR.a>=78){GR.a=78;GR.done=true}grRender()}
+ if(VL.anim){VL.th+=80*dt;if(VL.th>=VL.target){VL.th=VL.target;VL.anim=false}velRender()}}
+
+/* ---------- TEORIA (aba Aprendizagem) ---------- */
+function initTheory(){
+ $('fgGrau').innerHTML=figGrau();$('fgRad').innerHTML=figRad();grReset();velReset();
+ $('fgCont').innerHTML=figContact();$('fgBelt').innerHTML=figBelt(6,3.5);$('fgCoax').innerHTML=figCoax();$('fgBike').innerHTML=figBike(30,12,40);
+ const iA=bike.coroaTeeth,iB=bike.catracaTeeth;let max=0,min=99;
+ iA.forEach(a=>iB.forEach(b=>{max=Math.max(max,a/b);min=Math.min(min,a/b)}));
+ $('tblGear').innerHTML=`<table class="tbl-s"><thead><tr><th>i = N<sub>coroa</sub>/N<sub>catraca</sub></th>${iB.map(b=>`<th>Catraca ${b}d</th>`).join('')}</tr></thead><tbody>`+
+  iA.map(a=>`<tr><td>Coroa ${a}d</td>${iB.map(b=>{const i=a/b;return `<td class="${i===max?'best':i===min?'slow':''}">${fmt(i)}</td>`}).join('')}</tr>`).join('')+
+  `</tbody></table><div class="hint">i = voltas da roda por pedalada. Verde: marcha mais rápida · Vermelho: marcha mais leve.</div>`;
+ const cv=()=>{const v=parseFloat(String($('cvIn').value).replace(',','.')),u=$('cvU').value;
+  if(!(v>0)){$('cvOut').innerHTML='<div class="hint">Digite um número maior que zero.</div>';return}
+  const f=u==='rpm'?v/60:u==='Hz'?v:u==='rad'?v/TAU:1/v,f4=n=>fmt(n,4);
+  $('cvOut').innerHTML=`<table class="tbl-s cvt"><tbody><tr><td>Frequência f</td><td><b>${f4(f)} Hz</b></td></tr><tr><td>Rotações por minuto</td><td><b>${f4(f*60)} rpm</b></td></tr><tr><td>Velocidade angular ω = 2πf</td><td><b>${f4(TAU*f)} rad/s</b> (= ${f4(2*f)}π)</td></tr><tr><td>Período T = 1/f</td><td><b>${f4(1/f)} s</b></td></tr></tbody></table>`};
+ $('cvIn').oninput=cv;$('cvU').onchange=cv;cv();
+}
+
+/* ---------- 5 EXEMPLOS: SATÉLITE E RELÓGIO ---------- */
+const g5=setupCanvas('c5',640,640),g6=setupCanvas('c6',520,520);
+const SAT={T:24,speed:3,t:0,run:true},CK={t:0,speed:1,run:true,frac:.7};
+const RT=6378,SUP={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+const sci=n=>{if(n===0)return'0';const e=Math.floor(Math.log10(Math.abs(n))),m=n/Math.pow(10,e);if(e>=2&&e<7)return fmt(n,0);if(e>-3&&e<2)return fmt(n,3);return fmt(m,2)+'·10'+String(e).split('').map(c=>SUP[c]).join('')};
+function setSatGeo(){SAT.T=24;$('satT').value=24;$('vSatT').textContent='24 h'}
+$('satT').oninput=e=>{SAT.T=+e.target.value;$('vSatT').textContent=fmt(SAT.T,1)+' h'};
+$('satSpd').oninput=e=>{SAT.speed=+e.target.value;$('vSatSpd').textContent=fmt(SAT.speed,1)+' h por segundo'};
+document.querySelectorAll('#ckSpd .btn').forEach(b=>b.onclick=()=>{CK.speed=+b.dataset.s;$('vCkSpd').textContent='× '+CK.speed;document.querySelectorAll('#ckSpd .btn').forEach(x=>x.classList.toggle('on',x===b))});
+$('ckFrac').oninput=e=>{CK.frac=+e.target.value/100;$('vCkFrac').textContent=e.target.value+' %'};
+function satIcon(g,x,y,ang){g.save();g.translate(x,y);g.rotate(ang);
+ g.fillStyle='#2f6fb5';g.strokeStyle=TH.card;g.lineWidth=1.5;[-27,11].forEach(px=>{g.fillRect(px,-4,16,8);g.strokeRect(px,-4,16,8)});
+ g.fillStyle='#d4a017';g.fillRect(-7,-7,14,14);g.strokeRect(-7,-7,14,14);g.restore()}
+let lastSat=0,lastClk=0;
+function drawSat(dt){
+ const g=g5,W=640,cx=320,cy=320;g.clearRect(0,0,W,W);
+ if(SAT.run)SAT.t+=dt*SAT.speed;
+ const T=SAT.T,wS=TAU/T,wE=TAU/24,rkm=42164*Math.pow(T/24,2/3),k=270/rkm,rE=RT*k,aS=wS*SAT.t,aE=wE*SAT.t,vkm=wS*rkm;
+ if($('ckSO').checked){g.setLineDash([6,8]);g.strokeStyle=rgba(TH.pri,.55);g.lineWidth=2;g.beginPath();g.arc(cx,cy,270,0,TAU);g.stroke();g.setLineDash([])}
+ const gr=g.createRadialGradient(cx-rE*.3,cy-rE*.3,rE*.1,cx,cy,rE);gr.addColorStop(0,'#8fd0ff');gr.addColorStop(1,'#1f6fbf');
+ g.beginPath();g.arc(cx,cy,rE,0,TAU);g.fillStyle=gr;g.fill();
+ g.save();g.translate(cx,cy);g.rotate(-aE);
+ g.fillStyle='#3fae6e';[[10,60,.45,.97],[100,40,.2,.8],[170,55,.5,.95],[250,50,.3,.9],[305,35,.6,.97]].forEach(([a0,sp,r0,r1])=>{
+  g.beginPath();g.arc(0,0,rE*r1,-a0*D2R,-(a0+sp)*D2R,true);g.arc(0,0,rE*r0,-(a0+sp)*D2R,-a0*D2R,false);g.closePath();g.fill()});
+ g.strokeStyle='rgba(255,255,255,.55)';g.lineWidth=1;for(let d=0;d<360;d+=45){g.beginPath();g.moveTo(0,0);g.lineTo(rE*Math.cos(d*D2R),-rE*Math.sin(d*D2R));g.stroke()}
+ g.restore();g.beginPath();g.arc(cx,cy,rE,0,TAU);g.strokeStyle=TH.card;g.lineWidth=2.5;g.stroke();
+ const ox=cx+rE*Math.cos(aE),oy=cy-rE*Math.sin(aE),sx=cx+270*Math.cos(aS),sy=cy-270*Math.sin(aS);
+ g.setLineDash([4,6]);g.strokeStyle=TH.mut;g.lineWidth=1.5;g.beginPath();g.moveTo(ox,oy);g.lineTo(sx,sy);g.stroke();g.setLineDash([]);
+ if($('ckSW').checked){const r=(rE+270)/2;arcArrow(g,cx,cy,r,20,300,TH.c2,true,3);label(g,'ω',cx+(r+14)*Math.cos(-.3),cy+(r+14)*Math.sin(.3)+6,TH.c2,16)}
+ if($('ckSV').checked){const L=Math.min(130,Math.max(30,60*vkm/11000)),tx=-Math.sin(aS),ty=-Math.cos(aS);arrow(g,sx,sy,sx+tx*L,sy+ty*L,TH.c1,5);label(g,'v',sx+tx*(L+16),sy+ty*(L+16)+5,TH.c1,17)}
+ g.beginPath();g.arc(ox,oy,7,0,TAU);g.fillStyle='#e0436e';g.fill();g.lineWidth=2.5;g.strokeStyle=TH.card;g.stroke();
+ label(g,'observador',ox+(ox-cx)/rE*26,oy+(oy-cy)/rE*26+4,'#e0436e',13);
+ satIcon(g,sx,sy,-aS+Math.PI/2);label(g,'satélite',sx+(sx-cx)/270*32,sy+(sy-cy)/270*32+4,TH.ink,13);
+ label(g,'vista de cima do polo norte · Terra e raio da órbita em escala',W/2,24,TH.mut,13);
+ const now=performance.now();if(now-lastSat>120){lastSat=now;updSat(T,wS,wE,rkm,vkm,aS,aE)}
+}
+function updSat(T,wS,wE,rkm,vkm,aS,aE){
+ const geo=Math.abs(T-24)<.01,dlt=((((aS-aE)/D2R)%360)+360)%360,fm=n=>fmt(n,0).replace(/ /g,' ');
+ const rows=[['Período T (h)',24,T],['Frequência f (voltas/dia)',1,24/T],['Velocidade angular ω (rad/h)',wE,wS],['Velocidade angular ω (rad/s)',wE/3600,wS/3600],
+  ['Raio da trajetória (km)',RT,rkm],['Velocidade linear v = ω·R (km/h)',wE*RT,vkm],['Velocidade linear v (km/s)',wE*RT/3600,vkm/3600]];
+ $('satTbl').innerHTML=`<table><thead><tr><th></th><th style="color:#e0436e">Observador no equador</th><th style="color:var(--c2)">Satélite</th></tr></thead><tbody>`+
+  rows.map(r=>`<tr><td>${r[0]}</td><td><b>${sci(r[1])}</b></td><td><b>${sci(r[2])}</b></td></tr>`).join('')+`<tr><td>Altitude do satélite (km)</td><td>—</td><td><b>${fm(rkm-RT)}</b></td></tr></tbody></table>`;
+ $('satMsg').innerHTML=geo?`<b>Geoestacionário!</b> ω<sub>satélite</sub> = ω<sub>Terra</sub> = 2π/24 = <b>π/12 rad/h</b> (≈ 0,262 rad/h). Por isso o satélite fica sempre sobre o mesmo ponto do equador. A órbita tem raio ≈ ${fm(rkm)} km (altitude ≈ ${fm(rkm-RT)} km) e v = ω·R ≈ <b>${fm(vkm)} km/h</b>. Além de T = 24 h, a órbita precisa estar no plano do equador.`
+  :`<b>Não é geoestacionário.</b> Com T = ${fmt(T,1)} h o satélite gira ${T<24?'mais rápido':'mais devagar'} que a Terra e ${T<24?'se adianta':'fica para trás'} em relação ao observador (diferença atual: ${fmt(dlt,0)}°). Para ficar parado é preciso T = 24 h.`}
+function drawClock(dt){
+ const g=g6,W=520,cx=260,cy=260,R=230;g.clearRect(0,0,W,W);
+ if(CK.run)CK.t+=dt*CK.speed;
+ const t=CK.t,aS=TAU*((t%60)/60),aM=TAU*((t%3600)/3600),aH=TAU*((t%43200)/43200);
+ const gr=g.createRadialGradient(cx-40,cy-40,20,cx,cy,R);gr.addColorStop(0,TH.card);gr.addColorStop(1,rgba(TH.pri,.12));
+ g.beginPath();g.arc(cx,cy,R,0,TAU);g.fillStyle=gr;g.fill();g.lineWidth=8;g.strokeStyle=TH.pri;g.stroke();
+ for(let i=0;i<60;i++){const a=i*TAU/60,l=i%5===0?18:8,s=Math.sin(a),c=Math.cos(a);g.beginPath();g.moveTo(cx+(R-8)*s,cy-(R-8)*c);g.lineTo(cx+(R-8-l)*s,cy-(R-8-l)*c);g.strokeStyle=TH.mut;g.lineWidth=i%5===0?3:1.2;g.stroke()}
+ for(let n=1;n<=12;n++){const a=n*TAU/12;label(g,String(n),cx+(R-46)*Math.sin(a),cy-(R-46)*Math.cos(a)+7,TH.ink,22)}
+ const hand=(a,L,w,col,tail=0)=>{g.beginPath();g.moveTo(cx-tail*Math.sin(a),cy+tail*Math.cos(a));g.lineTo(cx+L*Math.sin(a),cy-L*Math.cos(a));g.strokeStyle=col;g.lineWidth=w;g.lineCap='round';g.stroke()};
+ hand(aH,R*.5,10,TH.ink);hand(aM,R*.72,6,TH.c2);hand(aS,R*.88,3,TH.c1,30);
+ g.beginPath();g.arc(cx,cy,9,0,TAU);g.fillStyle=TH.c1;g.fill();g.lineWidth=3;g.strokeStyle=TH.card;g.stroke();
+ const Ls=R*.88*CK.frac,px=cx+Ls*Math.sin(aS),py=cy-Ls*Math.cos(aS),tx=Math.cos(aS),ty=Math.sin(aS),Lv=70*CK.frac;
+ arrow(g,px,py,px+tx*Lv,py+ty*Lv,TH.bad,4.5);label(g,'v',px+tx*(Lv+16),py+ty*(Lv+16)+5,TH.bad,16);
+ g.beginPath();g.arc(px,py,8,0,TAU);g.fillStyle=TH.bad;g.fill();g.lineWidth=2.5;g.strokeStyle=TH.card;g.stroke();label(g,'P',px-14*Math.sin(aS),py+14*Math.cos(aS)+5,TH.bad,15);
+ arcArrow(g,cx,cy,34,155,-125,TH.c1,false,3);label(g,'ω',cx+46,cy+22,TH.c1,15);
+ const tot=Math.floor(t),hh=(Math.floor(tot/3600)%12)||12,mm=Math.floor(tot/60)%60,ss=tot%60,p=n=>String(n).padStart(2,'0');
+ label(g,`${p(hh)}:${p(mm)}:${p(ss)}`,cx,cy+R*.45,TH.ink,26);
+ const now=performance.now();if(now-lastClk>120){lastClk=now;updClock()}
+}
+function updClock(){
+ const hs=[['Ponteiro das horas',43200,'π/21600',5,TH.ink],['Ponteiro dos minutos',3600,'π/1800',7,TH.c2],['Ponteiro dos segundos',60,'π/30',9,TH.c1]],t=CK.t;
+ $('ckTbl').innerHTML=`<table><thead><tr><th></th><th>Período T (s)</th><th>Frequência f (Hz)</th><th>ω = 2π/T (rad/s)</th><th>ω exato</th><th>Voltas</th><th>Comprimento L (cm)</th><th>v da ponta = ω·L (cm/s)</th></tr></thead><tbody>`+
+  hs.map(h=>{const w=TAU/h[1];return `<tr><td style="color:${h[4]};font-weight:700">${h[0]}</td><td>${fmt(h[1],0)}</td><td>${sci(1/h[1])}</td><td><b>${sci(w)}</b></td><td>${h[2]} rad/s</td><td>${fmt(t/h[1],2)}</td><td>${h[3]}</td><td><b>${sci(w*h[3])}</b></td></tr>`}).join('')+`</tbody></table>`;
+ const wS=TAU/60,Ls=9*CK.frac;
+ $('ckMsg').innerHTML=`O ponteiro dos segundos tem ω = π/30 ≈ 0,105 rad/s: é <b>60×</b> mais rápido que o dos minutos e <b>720×</b> mais rápido que o das horas. O ponto P, a ${fmt(CK.frac*100,0)}% do ponteiro (${fmt(Ls,1)} cm do centro), tem a mesma ω de toda a haste, mas v = ω·R ≈ <b>${fmt(wS*Ls,2)} cm/s</b>: quanto mais longe do centro, maior a v.`}
+
+/* ---------- 6 ACELERAÇÃO CENTRÍPETA ---------- */
+const g7=setupCanvas('c7',760,440);
+const AC={step:0,R:8,v:5,dth:50};
+const ACI=['<b>Passo 1.</b> Uma partícula em MCU passa pelo ponto <b>P₁</b>, a uma distância <b>R</b> do centro O. Sua velocidade <b>v₁</b> é tangente à trajetória e tem módulo <b>v</b>.',
+ '<b>Passo 2.</b> Em um intervalo <b>Δt</b> ela vai para <b>P₂</b>, percorrendo o arco <b>Δs</b> (ângulo Δθ). O raio continua sendo R e o módulo da velocidade continua v, mas <b>v₂</b> tem outra direção.',
+ '<b>Passo 3.</b> Colocando v₁ e v₂ na mesma origem, a <b>variação da velocidade</b> é Δv = v₂ − v₁. Repare: os dois triângulos (da posição e das velocidades) são isósceles, com o mesmo ângulo Δθ.',
+ '<b>Passo 4.</b> Como v ⟂ R, o triângulo das velocidades é o das posições girado de 90°: são <b>semelhantes</b>. Lados iguais: v ↔ R. Bases: Δv ↔ corda ≈ Δs. Logo <b>Δv / v = Δs / R</b>.',
+ '<b>Passo 5.</b> Dividindo por Δt: a = Δv/Δt = (v/R)·(Δs/Δt) = (v/R)·v = <b>v²/R</b>. O Δv aponta para o <b>centro</b>: é a aceleração centrípeta. Como v = ωR, também a<sub>c</sub> = ω²R.'];
+function acInfo(){$('acInfo').innerHTML=ACI[AC.step];$('acNext').disabled=AC.step>=4;$('acPrev').disabled=AC.step<=0}
+function acStep(d){AC.step=Math.max(0,Math.min(4,AC.step+d));acInfo()}
+$('acR').oninput=e=>{AC.R=+e.target.value;$('vAcR').textContent=AC.R+' m'};
+$('acV').oninput=e=>{AC.v=+e.target.value;$('vAcV').textContent=AC.v+' m/s'};
+$('acT').oninput=e=>{AC.dth=+e.target.value;$('vAcT').textContent=AC.dth+'°'};
+let lastAc=0;
+function drawAc(){
+ const g=g7,W=760,H=440,st=AC.step,R=AC.R,v=AC.v,dth=AC.dth*D2R,kr=17,Rp=R*kr,ox=190,oy=236;
+ g.clearRect(0,0,W,H);
+ const a1=-dth/2,a2=dth/2,Pt=a=>[ox+Rp*Math.cos(a),oy-Rp*Math.sin(a)];
+ const p1=Pt(a1),p2=Pt(a2),vl=Math.max(30,v*8);
+ const tg=a=>[-Math.sin(a),-Math.cos(a)];            // tangente (anti-horário) em coordenadas de tela
+ g.setLineDash([5,6]);g.strokeStyle=TH.mut;g.globalAlpha=.5;g.lineWidth=1.5;g.beginPath();g.arc(ox,oy,Rp,0,TAU);g.stroke();g.globalAlpha=1;g.setLineDash([]);
+ label(g,'Posições',ox,26,TH.mut,14);
+ if(st>=2){g.beginPath();g.moveTo(ox,oy);g.lineTo(p1[0],p1[1]);g.lineTo(p2[0],p2[1]);g.closePath();g.fillStyle=rgba(TH.c1,st>=3?.2:.1);g.fill()}
+ g.fillStyle=TH.ink;g.beginPath();g.arc(ox,oy,4,0,TAU);g.fill();label(g,'O',ox-14,oy+18,TH.ink,15);
+ if(st>=1){g.beginPath();g.arc(ox,oy,Rp,-a1,-a2,true);g.strokeStyle=TH.c1;g.lineWidth=8;g.lineCap='round';g.stroke()}
+ const rad=(p,col)=>{g.beginPath();g.moveTo(ox,oy);g.lineTo(p[0],p[1]);g.strokeStyle=col;g.lineWidth=2.2;g.stroke()};
+ rad(p1,TH.ink);const t1=tg(a1);arrow(g,p1[0],p1[1],p1[0]+t1[0]*vl,p1[1]+t1[1]*vl,TH.c2,4.5);
+ label(g,'v₁',p1[0]+t1[0]*(vl+16)+10,p1[1]+t1[1]*(vl+16),TH.c2,17);
+ label(g,'R',(ox+p1[0])/2+6,(oy+p1[1])/2+20,TH.ink,15);
+ if(st>=1){
+  rad(p2,TH.ink);const t2=tg(a2);arrow(g,p2[0],p2[1],p2[0]+t2[0]*vl,p2[1]+t2[1]*vl,TH.c2,4.5);
+  label(g,'v₂',p2[0]+t2[0]*(vl+16)-8,p2[1]+t2[1]*(vl+16),TH.c2,17);
+  label(g,'R',(ox+p2[0])/2+6,(oy+p2[1])/2-10,TH.ink,15);
+  label(g,'Δs',ox+Rp+46,oy+6,TH.c1,17);
+  g.beginPath();g.arc(ox,oy,38,-a1,-a2,true);g.strokeStyle=TH.ink;g.lineWidth=2;g.stroke();label(g,'Δθ',ox+62,oy+5,TH.ink,15);
+  [p1,p2].forEach((p,i)=>{g.beginPath();g.arc(p[0],p[1],7,0,TAU);g.fillStyle=TH.c1;g.fill();g.lineWidth=2.5;g.strokeStyle=TH.card;g.stroke();label(g,'P'+SB[i+1],p[0]+(i?18:18),p[1]+(i?-10:20),TH.ink,15)})}
+ // diagrama das velocidades (vetores saem da origem Q para cima)
+ const qx=610,qy=262,kv=Math.max(10,Math.min(16,160/v)),vp=v*kv;
+ if(st>=2){
+  g.strokeStyle=TH.line;g.lineWidth=1;g.beginPath();g.moveTo(430,20);g.lineTo(430,H-20);g.stroke();
+  label(g,'Velocidades (mesma origem)',525,26,TH.mut,14);
+  const m1=Math.PI/2-dth/2,m2=Math.PI/2+dth/2,e1=[qx+Math.cos(m1)*vp,qy-Math.sin(m1)*vp],e2=[qx+Math.cos(m2)*vp,qy-Math.sin(m2)*vp];
+  g.beginPath();g.moveTo(qx,qy);g.lineTo(e1[0],e1[1]);g.lineTo(e2[0],e2[1]);g.closePath();g.fillStyle=rgba(TH.c2,st>=3?.2:.1);g.fill();
+  arrow(g,qx,qy,e1[0],e1[1],TH.c2,4);arrow(g,qx,qy,e2[0],e2[1],TH.c2,4);
+  label(g,'v₁',e1[0]+22,e1[1]+6,TH.c2,17);label(g,'v₂',e2[0]-22,e2[1]+6,TH.c2,17);
+  g.beginPath();g.arc(qx,qy,34,-m1,-m2,true);g.strokeStyle=TH.ink;g.lineWidth=2;g.stroke();label(g,'Δθ',qx,qy+22,TH.ink,15);
+  arrow(g,e1[0],e1[1],e2[0],e2[1],TH.bad,4.5);label(g,'Δv',(e1[0]+e2[0])/2,e1[1]-12,TH.bad,18);
+  g.fillStyle=TH.ink;g.beginPath();g.arc(qx,qy,4,0,TAU);g.fill()}
+ if(st>=2){g.setLineDash([6,5]);g.beginPath();g.moveTo(p1[0],p1[1]);g.lineTo(p2[0],p2[1]);g.strokeStyle=TH.bad;g.lineWidth=2.5;g.stroke();g.setLineDash([])}
+ if(st>=3){label(g,'R ↔ v',ox,oy+Rp+34,TH.ink,16);label(g,'corda ≈ Δs ↔ Δv',ox,oy+Rp+56,TH.bad,16)}
+ if(st>=4){const mx=ox+Rp,my=oy,L=Math.min(120,Math.max(44,v*v/R*14));arrow(g,mx-10,my,mx-10-L,my,TH.bad,5.5);label(g,'Δv → a',mx-10-L/2,my-14,TH.bad,16)}
+ if(st>=3)label(g,'Δv / v = Δs / R',590,350,TH.ink,22);
+ if(st>=4){label(g,'a = Δv/Δt = (v/R)·(Δs/Δt) = v²/R',590,384,TH.ink,17);label(g,'(Δs/Δt = v)',590,408,TH.mut,14)}
+ const now=performance.now();if(now-lastAc>120){lastAc=now;updAc()}
+}
+function updAc(){
+ const R=AC.R,v=AC.v,dth=AC.dth*D2R,ds=R*dth,ch=2*R*Math.sin(dth/2),dv=2*v*Math.sin(dth/2),dt=ds/v,am=dv/dt,ac=v*v/R,w=v/R;
+ const rows=[['Raio R (m)',R],['Velocidade v (m/s)',v],['Ângulo Δθ (°)',AC.dth],['Arco Δs = R·Δθ (m)',ds],['Corda P₁P₂ (m)',ch],['Variação da velocidade Δv = 2v·sen(Δθ/2) (m/s)',dv],
+  ['Δv / v',dv/v],['Corda / R (semelhança exata)',ch/R],['Δs / R (= Δθ em rad)',ds/R],['Intervalo Δt = Δs/v (s)',dt],['Aceleração média Δv/Δt (m/s²)',am],['Aceleração centrípeta a = v²/R (m/s²)',ac],['Velocidade angular ω = v/R (rad/s)',w],['ω²·R (m/s²)',w*w*R]];
+ $('acTbl').innerHTML='<table><tbody>'+rows.map(r=>`<tr><td>${r[0]}</td><td><b>${fmt(r[1],3)}</b></td></tr>`).join('')+`</tbody></table><div class="info">Com Δθ = ${AC.dth}°, Δv/v = ${fmt(dv/v,3)} e Δs/R = ${fmt(ds/R,3)}; a aceleração média é ${fmt(am,3)} m/s² contra v²/R = ${fmt(ac,3)} m/s² (diferença de ${fmt(Math.abs(am-ac)/ac*100,1)}%). Diminua o Δθ e a diferença desaparece.</div>`}
+
+/* ---------- INÍCIO ---------- */
+buildCards();readTheme();setTheme('light');resetSim();updL();initTheory();acInfo();novaQ();
+let last=0;
+function loop(ts){const dt=Math.min(.05,last?(ts-last)/1000:0);last=ts;
+ if(cur===1){drawL();tickFigs(dt)}else if(cur===2)drawSim(dt);else if(cur===3)drawTR(dt);else if(cur===5){drawSat(dt);drawClock(dt)}else if(cur===6)drawAc();
+ requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+</script></body></html>
