@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Leis de Newton — Simulador (1ª e 2ª leis)</title>
+<style>
+  :root{
+    --bg:#0f1724;
+    --panel:#0b1220;
+    --accent:#3ddc97;
+    --muted:#9aa7b2;
+    --card:#0f1a26;
+  }
+  body{
+    margin:0;
+    font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;
+    background:linear-gradient(180deg,#071021 0%, #0b1b2a 100%);
+    color:#e6f0f2;
+    display:flex;
+    min-height:100vh;
+    gap:18px;
+    padding:18px;
+    box-sizing:border-box;
+  }
+  .left{
+    flex:1.2;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:12px;
+    padding:14px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.6);
+  }
+  .right{
+    width:380px;
+    background:var(--panel);
+    border-radius:12px;
+    padding:14px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.6);
+  }
+  h3{margin:6px 0 12px 0; font-weight:600; color:var(--accent)}
+  canvas{width:100%; height:520px; background:linear-gradient(180deg,#cfefff08,#ffffff03); border-radius:8px; display:block}
+  .controls{display:grid; grid-template-columns:1fr; gap:10px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.03)}
+  label{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:6px}
+  input[type=range]{width:100%}
+  .row{display:flex; gap:8px; align-items:center}
+  .btn{background:var(--accent); color:#042226; padding:8px 10px; border-radius:8px; border:none; cursor:pointer; font-weight:600}
+  .btn.secondary{background:#2b3b4a; color:var(--muted)}
+  .small{font-size:13px; color:var(--muted)}
+  .vector-legend{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+  .legend-item{display:flex; gap:6px; align-items:center; font-size:13px; color:var(--muted)}
+  .swatch{width:18px; height:10px; border-radius:3px}
+  .sw-f1{background:#ff7b7b}
+  .sw-f2{background:#ffd36b}
+  .sw-f3{background:#7bd1ff}
+  .sw-fr{background:#7cffb2}
+  .readouts{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px}
+  .readout{background:#071826; padding:8px; border-radius:6px; text-align:center}
+  .readout b{display:block; font-size:18px; color:var(--accent)}
+  footer{font-size:12px; color:var(--muted); margin-top:8px}
+  .toggle{display:flex; gap:8px; align-items:center}
+  .toggle input{transform:scale(1.1)}
+  .force-row{display:flex; gap:8px; align-items:center}
+  .force-row input[type=number]{width:80px; padding:6px; border-radius:6px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit}
+</style>
+</head>
+<body>
+  <div class="left card">
+    <h3>Leis de Newton — Simulador</h3>
+    <canvas id="scene" width="1200" height="600"></canvas>
+    <div style="display:flex; justify-content:space-between; margin-top:10px; gap:10px">
+      <div class="card" style="flex:1; padding:10px">
+        <div style="display:flex; gap:10px; align-items:center; justify-content:space-between">
+          <div>
+            <div class="small">Objeto</div>
+            <select id="shape" style="padding:6px; border-radius:6px; background:transparent; color:inherit; border:1px solid rgba(255,255,255,0.04)">
+              <option value="sphere">Esfera</option>
+              <option value="block">Bloco</option>
+            </select>
+          </div>
+          <div>
+            <div class="small">Mostrar vetor resultante</div>
+            <label class="toggle"><input type="checkbox" id="showResultant" checked> </label>
+          </div>
+          <div>
+            <div class="small">Mostrar aceleração</div>
+            <label class="toggle"><input type="checkbox" id="showAccel" checked> </label>
+          </div>
+          <div>
+            <button id="resetBtn" class="btn secondary">Reset</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="width:260px; padding:10px">
+        <div class="small">Controles de simulação</div>
+        <div style="display:flex; gap:8px; margin-top:8px">
+          <button id="playPause" class="btn">Pausar</button>
+          <button id="stepBtn" class="btn secondary">Passo</button>
+        </div>
+        <div class="small" style="margin-top:8px">Velocidade de simulação</div>
+        <input id="timeScale" type="range" min="0.1" max="3" step="0.1" value="1">
+      </div>
+    </div>
+  </div>
+
+  <aside class="right">
+    <div class="card">
+      <div class="small">Forças aplicadas (N)</div>
+      <div style="margin-top:8px">
+        <div class="force-row">
+          <label><input type="checkbox" id="f1_on" checked> <span class="small">Força 1 →</span></label>
+          <input id="f1_val" type="number" value="20" step="1"> 
+        </div>
+        <div class="force-row" style="margin-top:6px">
+          <label><input type="checkbox" id="f2_on" checked> <span class="small">Força 2 →</span></label>
+          <input id="f2_val" type="number" value="10" step="1">
+        </div>
+        <div class="force-row" style="margin-top:6px">
+          <label><input type="checkbox" id="f3_on"> <span class="small">Força 3 ←</span></label>
+          <input id="f3_val" type="number" value="0" step="1">
+        </div>
+        <div class="force-row" style="margin-top:6px">
+          <label><input type="checkbox" id="f4_on"> <span class="small">Força 4 (ângulo)</span></label>
+          <input id="f4_val" type="number" value="0" step="1">
+        </div>
+        <div style="margin-top:6px; display:flex; gap:6px; align-items:center">
+          <div class="small">Ângulo F4</div>
+          <input id="f4_angle" type="number" value="45" step="1" style="width:70px">
+        </div>
+      </div>
+
+      <hr style="border:none; height:1px; background:rgba(255,255,255,0.03); margin:10px 0">
+
+      <div class="small">Massa (kg)</div>
+      <input id="mass" type="range" min="0.2" max="50" step="0.1" value="5">
+      <div class="small" style="margin-top:6px">Coeficiente de atrito (μ)</div>
+      <input id="mu" type="range" min="0" max="1" step="0.01" value="0.15">
+
+      <div style="margin-top:10px" class="row">
+        <button id="applyForces" class="btn">Aplicar</button>
+        <button id="zeroFriction" class="btn secondary">Remover atrito</button>
+      </div>
+
+      <div class="vector-legend">
+        <div class="legend-item"><div class="swatch sw-f1"></div> <span class="small">Forças aplicadas</span></div>
+        <div class="legend-item"><div class="swatch sw-fr"></div> <span class="small">Força resultante</span></div>
+      </div>
+
+      <div class="readouts">
+        <div class="readout">
+          <div class="small">Força resultante (N)</div>
+          <b id="fr_val">0.0</b>
+        </div>
+        <div class="readout">
+          <div class="small">Aceleração (m/s²)</div>
+          <b id="a_val">0.0</b>
+        </div>
+        <div class="readout">
+          <div class="small">Velocidade (m/s)</div>
+          <b id="v_val">0.0</b>
+        </div>
+        <div class="readout">
+          <div class="small">Posição (m)</div>
+          <b id="x_val">0.0</b>
+        </div>
+      </div>
+
+      <footer>
+        Dica: diminua μ para ver o objeto percorrer mais distância; se μ = 0 e FR = 0, o objeto mantém velocidade constante (1ª lei).
+      </footer>
+    </div>
+  </aside>
+
+<script>
+/* Simulador didático das Leis de Newton
+   - Unidade: N, kg, m, s
+   - Simulação 1D horizontal com opção de força inclinada (F4)
+   - Atrito cinético simples: F_atrito = μ * m * g (opõe-se ao movimento)
+   - Se velocidade = 0 e FR < F_atrito, o objeto permanece parado (simplificação: não modelamos atrito estático complexo)
+*/
+
+const canvas = document.getElementById('scene');
+const ctx = canvas.getContext('2d');
+const DPR = window.devicePixelRatio || 1;
+canvas.width = canvas.clientWidth * DPR;
+canvas.height = canvas.clientHeight * DPR;
+ctx.scale(DPR, DPR);
+
+const g = 9.81; // m/s^2
+let sim = {
+  mass: 5,
+  mu: 0.15,
+  forces: { f1:20, f2:10, f3:0, f4:0, f4_angle:45 },
+  enabled: { f1:true, f2:true, f3:false, f4:false },
+  x: 0, // posição em metros (origem no centro)
+  v: 0,
+  a: 0,
+  playing: true,
+  timeScale: 1,
+  showResultant: true,
+  showAccel: true,
+  shape: 'sphere'
+};
+
+// escala: pixels por metro (visual)
+const pxPerM = 60;
+const groundY = 420;
+
+function readControls(){
+  sim.mass = parseFloat(document.getElementById('mass').value);
+  sim.mu = parseFloat(document.getElementById('mu').value);
+  sim.forces.f1 = parseFloat(document.getElementById('f1_val').value) || 0;
+  sim.forces.f2 = parseFloat(document.getElementById('f2_val').value) || 0;
+  sim.forces.f3 = parseFloat(document.getElementById('f3_val').value) || 0;
+  sim.forces.f4 = parseFloat(document.getElementById('f4_val').value) || 0;
+  sim.forces.f4_angle = parseFloat(document.getElementById('f4_angle').value) || 0;
+  sim.enabled.f1 = document.getElementById('f1_on').checked;
+  sim.enabled.f2 = document.getElementById('f2_on').checked;
+  sim.enabled.f3 = document.getElementById('f3_on').checked;
+  sim.enabled.f4 = document.getElementById('f4_on').checked;
+  sim.timeScale = parseFloat(document.getElementById('timeScale').value);
+  sim.showResultant = document.getElementById('showResultant').checked;
+  sim.showAccel = document.getElementById('showAccel').checked;
+  sim.shape = document.getElementById('shape').value;
+}
+
+document.getElementById('applyForces').addEventListener('click', ()=>{
+  readControls();
+  // apply immediate recompute
+  computeForces();
+});
+document.getElementById('zeroFriction').addEventListener('click', ()=>{
+  document.getElementById('mu').value = 0;
+  readControls();
+  computeForces();
+});
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  sim.x = 0; sim.v = 0; sim.a = 0;
+  readControls();
+});
+document.getElementById('playPause').addEventListener('click', (e)=>{
+  sim.playing = !sim.playing;
+  e.target.textContent = sim.playing ? 'Pausar' : 'Play';
+});
+document.getElementById('stepBtn').addEventListener('click', ()=>{
+  step(0.05); draw();
+});
+document.getElementById('mass').addEventListener('input', readControls);
+document.getElementById('mu').addEventListener('input', readControls);
+document.getElementById('timeScale').addEventListener('input', readControls);
+document.getElementById('shape').addEventListener('change', readControls);
+document.getElementById('showResultant').addEventListener('change', readControls);
+document.getElementById('showAccel').addEventListener('change', readControls);
+
+function computeForces(){
+  // soma vetorial simples em x e y
+  readControls();
+  let Fx = 0, Fy = 0;
+  if(sim.enabled.f1) Fx += sim.forces.f1;
+  if(sim.enabled.f2) Fx += sim.forces.f2;
+  if(sim.enabled.f3) Fx -= sim.forces.f3;
+  if(sim.enabled.f4){
+    const ang = sim.forces.f4_angle * Math.PI/180;
+    Fx += sim.forces.f4 * Math.cos(ang);
+    Fy += sim.forces.f4 * Math.sin(ang);
+  }
+  // atrito cinético: magnitude = μ * N = μ * m * g (assumimos superfície horizontal)
+  // direção: opõe-se ao movimento (ou à tendência de movimento se v=0 e FR != 0)
+  const normal = sim.mass * g - Fy; // se Fy vertical para cima reduz N
+  const F_atrito_mag = Math.max(0, sim.mu * Math.abs(normal));
+  // determinar sentido do atrito:
+  let F_atrito_x = 0;
+  // se há movimento (v != 0), atrito opõe-se a v
+  if(Math.abs(sim.v) > 1e-4){
+    F_atrito_x = -Math.sign(sim.v) * F_atrito_mag;
+  } else {
+    // sem movimento: atrito se opõe à força resultante em x até seu máximo
+    const tentativeFx = Fx;
+    if(Math.abs(tentativeFx) <= F_atrito_mag){
+      // atrito cancela totalmente a tendência -> objeto permanece parado
+      F_atrito_x = -tentativeFx;
+    } else {
+      // atrito atua no sentido oposto, mas não cancela totalmente
+      F_atrito_x = -Math.sign(tentativeFx) * F_atrito_mag;
+    }
+  }
+  const FRx = Fx + F_atrito_x;
+  const FRy = Fy; // não modelamos movimento vertical
+  const FR = Math.hypot(FRx, FRy);
+  const ax = FRx / sim.mass;
+  const ay = FRy / sim.mass;
+  sim.FR = { x: FRx, y: FRy, mag: FR };
+  sim.a = ax; // aceleração horizontal relevante
+  // update readouts
+  document.getElementById('fr_val').textContent = sim.FR.mag.toFixed(2);
+  document.getElementById('a_val').textContent = sim.a.toFixed(3);
+  document.getElementById('v_val').textContent = sim.v.toFixed(3);
+  document.getElementById('x_val').textContent = sim.x.toFixed(3);
+}
+
+function step(dt){
+  // dt em segundos (simulado)
+  computeForces();
+  // integração simples (Euler semi-implícito)
+  sim.v += sim.a * dt;
+  sim.x += sim.v * dt;
+  // limitar posição para não sumir (apenas visual)
+  if(sim.x > 20) sim.x = 20;
+  if(sim.x < -20) sim.x = -20;
+  // atualizar readouts
+  document.getElementById('v_val').textContent = sim.v.toFixed(3);
+  document.getElementById('x_val').textContent = sim.x.toFixed(3);
+}
+
+let lastTime = null;
+function animate(ts){
+  if(!lastTime) lastTime = ts;
+  const elapsed = (ts - lastTime)/1000;
+  lastTime = ts;
+  if(sim.playing){
+    const dt = elapsed * sim.timeScale;
+    // limitar dt para estabilidade
+    const steps = Math.max(1, Math.ceil(dt / 0.02));
+    for(let i=0;i<steps;i++){
+      step(dt/steps);
+    }
+  }
+  draw();
+  requestAnimationFrame(animate);
+}
+
+function draw(){
+  // clear
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // background gradient
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  // ground
+  ctx.fillStyle = '#0b1b2a';
+  ctx.fillRect(0, groundY, w, h-groundY);
+  // draw grid (meters)
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  ctx.lineWidth = 1;
+  for(let m=-20; m<=20; m++){
+    const x = w/2 + m*pxPerM;
+    ctx.beginPath();
+    ctx.moveTo(x, groundY);
+    ctx.lineTo(x, groundY+6);
+    ctx.stroke();
+    if(m % 2 === 0){
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.font = '11px Inter';
+      ctx.fillText(m + ' m', x+4, groundY+18);
+    }
+  }
+
+  // object position in pixels
+  const objX = w/2 + sim.x * pxPerM;
+  const objY = groundY - 40;
+
+  // draw object (sphere or block) with nice shading
+  if(sim.shape === 'sphere'){
+    const r = 28;
+    const grad = ctx.createRadialGradient(objX-8, objY-8, 6, objX, objY, r);
+    grad.addColorStop(0, '#9fd6ff');
+    grad.addColorStop(1, '#3aa0ff');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(objX, objY, r, 0, Math.PI*2);
+    ctx.fill();
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath();
+    ctx.ellipse(objX, groundY-12, r*0.9, 10, 0, 0, Math.PI*2);
+    ctx.fill();
+  } else {
+    const bw = 80, bh = 48;
+    // block with gradient
+    const grad = ctx.createLinearGradient(objX-bw/2, objY-bh/2, objX+bw/2, objY+bh/2);
+    grad.addColorStop(0, '#bfe8ff');
+    grad.addColorStop(1, '#4aa6ff');
+    ctx.fillStyle = grad;
+    roundRect(ctx, objX-bw/2, objY-bh/2, bw, bh, 8, true, false);
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath();
+    ctx.ellipse(objX, groundY-8, bw*0.6, 12, 0, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // draw applied forces as arrows
+  const arrowScale = 6; // pixels per N (visual scaling)
+  const baseY = objY - 10;
+  let fx_total = 0, fy_total = 0;
+  // F1
+  if(sim.enabled.f1 && Math.abs(sim.forces.f1) > 0.001){
+    drawArrow(objX, baseY-10, objX + sim.forces.f1*arrowScale, baseY-10, '#ff7b7b', 'F1: ' + sim.forces.f1 + ' N');
+    fx_total += sim.forces.f1;
+  }
+  // F2
+  if(sim.enabled.f2 && Math.abs(sim.forces.f2) > 0.001){
+    drawArrow(objX, baseY-20, objX + sim.forces.f2*arrowScale, baseY-20, '#ffd36b', 'F2: ' + sim.forces.f2 + ' N');
+    fx_total += sim.forces.f2;
+  }
+  // F3 (left)
+  if(sim.enabled.f3 && Math.abs(sim.forces.f3) > 0.001){
+    drawArrow(objX, baseY+10, objX - sim.forces.f3*arrowScale, baseY+10, '#7bd1ff', 'F3: ' + sim.forces.f3 + ' N');
+    fx_total -= sim.forces.f3;
+  }
+  // F4 (angled)
+  if(sim.enabled.f4 && Math.abs(sim.forces.f4) > 0.001){
+    const ang = sim.forces.f4_angle * Math.PI/180;
+    const fx = sim.forces.f4 * Math.cos(ang);
+    const fy = -sim.forces.f4 * Math.sin(ang); // up is negative y in canvas
+    drawArrow(objX, baseY-40, objX + fx*arrowScale, baseY-40 + fy*arrowScale, '#ff9bff', 'F4: ' + sim.forces.f4 + ' N @' + sim.forces.f4_angle + '°');
+    fx_total += fx;
+    fy_total += -fy; // convert back to physics sign
+  }
+
+  // draw friction vector (computed)
+  // recompute friction magnitude for drawing
+  const normal = sim.mass * g - fy_total;
+  const F_atrito_mag = Math.max(0, sim.mu * Math.abs(normal));
+  // direction: oppose motion or tendency
+  let fat_dir = 0; // +1 right, -1 left
+  if(Math.abs(sim.v) > 1e-4) fat_dir = -Math.sign(sim.v);
+  else fat_dir = -Math.sign(fx_total || 1); // oppose tendency
+  if(F_atrito_mag > 1e-6){
+    const fx_at_draw = fat_dir * F_atrito_mag;
+    drawArrow(objX, baseY+30, objX + fx_at_draw*arrowScale, baseY+30, '#6b6b6b', 'Atrito: ' + F_atrito_mag.toFixed(2) + ' N');
+  }
+
+  // draw resultant if enabled
+  if(sim.showResultant){
+    computeForces(); // ensure sim.FR up to date
+    const frx = sim.FR.x;
+    const fry = sim.FR.y;
+    drawArrow(objX, objY-80, objX + frx*arrowScale, objY-80 - fry*arrowScale, '#7cffb2', 'F_R: ' + sim.FR.mag.toFixed(2) + ' N');
+    // draw acceleration vector (scaled)
+    if(sim.showAccel){
+      const aScale = 120; // pixels per (m/s^2)
+      drawArrow(objX, objY-80, objX + sim.a * aScale, objY-80, '#ffd36b', 'a: ' + sim.a.toFixed(3) + ' m/s²');
+    }
+  }
+
+  // ground label
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  ctx.font = '12px Inter';
+  ctx.fillText('Superfície (horizontal)', 12, groundY+28);
+}
+
+// helper: draw arrow with label
+function drawArrow(x1,y1,x2,y2,color,label){
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x1,y1);
+  ctx.lineTo(x2,y2);
+  ctx.stroke();
+  // arrowhead
+  const ang = Math.atan2(y2-y1, x2-x1);
+  const ah = 10;
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2 - ah*Math.cos(ang - Math.PI/6), y2 - ah*Math.sin(ang - Math.PI/6));
+  ctx.lineTo(x2 - ah*Math.cos(ang + Math.PI/6), y2 - ah*Math.sin(ang + Math.PI/6));
+  ctx.closePath();
+  ctx.fill();
+  // label
+  if(label){
+    ctx.font = '12px Inter';
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.fillText(label, x2 + 8, y2 - 8);
+  }
+}
+
+// rounded rectangle
+function roundRect(ctx, x, y, w, h, r, fill, stroke) {
+  if (typeof r === 'undefined') r = 5;
+  if (typeof r === 'number') r = {tl: r, tr: r, br: r, bl: r};
+  ctx.beginPath();
+  ctx.moveTo(x + r.tl, y);
+  ctx.lineTo(x + w - r.tr, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r.tr);
+  ctx.lineTo(x + w, y + h - r.br);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r.br, y + h);
+  ctx.lineTo(x + r.bl, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r.bl);
+  ctx.lineTo(x, y + r.tl);
+  ctx.quadraticCurveTo(x, y, x + r.tl, y);
+  ctx.closePath();
+  if (fill) ctx.fill();
+  if (stroke) ctx.stroke();
+}
+
+// initial compute
+readControls();
+computeForces();
+draw();
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>
